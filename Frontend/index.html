@@ -65,6 +65,36 @@
         .countdown-number { font-size: 1.8rem; font-weight: 800; color: var(--primary); display: block; }
         .countdown-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; margin-top: 5px; }
 
+        /* Responsive Countdown - Tablets */
+        @media (max-width: 768px) {
+            .countdown { margin: 15px; padding: 15px; }
+            .countdown h3 { font-size: 0.85rem; margin-bottom: 12px; }
+            .countdown-timer { gap: 8px; }
+            .countdown-box { padding: 10px; }
+            .countdown-number { font-size: 1.5rem; }
+            .countdown-label { font-size: 0.65rem; }
+        }
+
+        /* Responsive Countdown - Small Phones */
+        @media (max-width: 480px) {
+            .countdown { margin: 12px; padding: 12px; }
+            .countdown h3 { font-size: 0.8rem; margin-bottom: 10px; }
+            .countdown-timer { gap: 6px; }
+            .countdown-box { padding: 8px; }
+            .countdown-number { font-size: 1.3rem; }
+            .countdown-label { font-size: 0.6rem; }
+        }
+
+        /* Responsive Countdown - Extra Small */
+        @media (max-width: 360px) {
+            .countdown { margin: 10px; padding: 10px; }
+            .countdown h3 { font-size: 0.75rem; margin-bottom: 8px; }
+            .countdown-timer { gap: 4px; }
+            .countdown-box { padding: 6px; }
+            .countdown-number { font-size: 1.1rem; }
+            .countdown-label { font-size: 0.55rem; }
+        }
+
         .progress-container { margin-top: 15px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 10px; overflow: hidden; }
         .progress-bar { height: 8px; background: linear-gradient(90deg, var(--primary), #FFD699); border-radius: 10px; transition: width 0.3s ease; }
         .progress-text { font-size: 0.65rem; color: #aaa; margin-top: 5px; text-align: center; }
@@ -121,13 +151,13 @@
 
     <div id="ui-content">
         <header class="hero">
-            <h1>Journée Atiéké</h1>
+            <h1>Journée Attiéké</h1>
             <p>Plongez dans l'ambiance "Chill, Food & Sun".<br>La journée étudiante incontournable.</p>
         </header>
 
         <div class="info-grid">
             <div class="info-card"><i class="fa-solid fa-calendar"></i><span>Date</span><p>19 Avril</p></div>
-            <div class="info-card"><i class="fa-solid fa-location-dot"></i><span>Lieu</span><p>Cote Sauvage</p></div>
+            <div class="info-card"><i class="fa-solid fa-location-dot"></i><span>Lieu</span><p>Côte Sauvage</p></div>
             <div class="info-card"><i class="fa-solid fa-ticket"></i><span>Ticket</span><p>2.500 XAF</p></div>
         </div>
 
@@ -358,7 +388,7 @@
 
     function fetchEventId() {
         // Get the "Journée Atiéké" event from API
-        fetch('http://localhost:3000/events')
+        fetch('https://universearch-party.onrender.com/events')
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch events');
                 return response.json();
@@ -401,7 +431,7 @@
 
         console.log('Creating system user first with email:', systemUserData.email);
 
-        fetch('http://localhost:3000/auth/register', {
+        fetch('https://universearch-party.onrender.com/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -447,7 +477,7 @@
 
         console.log('Creating event with user:', eventData);
 
-        fetch('http://localhost:3000/events', {
+        fetch('https://universearch-party.onrender.com/events', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -568,7 +598,7 @@
         btn.innerText = 'Enregistrement...';
         
         // Call API to register user
-        fetch('http://localhost:3000/auth/register', {
+        fetch('https://universearch-party.onrender.com/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -695,7 +725,7 @@
         document.getElementById('loader').style.display = 'block';
 
         // Call backend to save payment with PENDING status
-        fetch('http://localhost:3000/payments', {
+        fetch('https://universearch-party.onrender.com/payments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -755,7 +785,7 @@
             return;
         }
 
-        fetch(`http://localhost:3000/payments/status/${momoReference}`, {
+        fetch(`https://universearch-party.onrender.com/payments/status/${momoReference}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -833,7 +863,7 @@
 
     function watchPayment(paymentId) {
         const interval = setInterval(() => {
-            fetch(`http://localhost:3000/payments/${paymentId}`)
+            fetch(`https://universearch-party.onrender.com/payments/${paymentId}`)
             .then(res => {
                 if (!res.ok) throw new Error('Failed to fetch payment');
                 return res.json();

@@ -271,7 +271,7 @@
 
     // ===== PAIEMENTS ADMIN =====
     function loadPayments() {
-        fetch('http://localhost:3000/payments')
+        fetch('https://universearch-party.onrender.com/payments')
         .then(res => {
             if (!res.ok) throw new Error('Failed to fetch payments');
             return res.json();
@@ -328,7 +328,7 @@
     function validatePayment(id) {
         if (!confirm('Êtes-vous sûr de valider ce paiement ?')) return;
 
-        fetch(`http://localhost:3000/payments/${id}/validate`, {
+        fetch(`https://universearch-party.onrender.com/payments/${id}/validate`, {
             method: 'PATCH',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
@@ -351,7 +351,7 @@
     function rejectPayment(id) {
         if (!confirm('Êtes-vous sûr de refuser ce paiement ?')) return;
 
-        fetch(`http://localhost:3000/payments/${id}/reject`, {
+        fetch(`https://universearch-party.onrender.com/payments/${id}/reject`, {
             method: 'PATCH',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
