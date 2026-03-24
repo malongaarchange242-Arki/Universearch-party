@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aide - Universearch Party</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #FFB800;
+            --dark-teal: #062c2b;
+            --darker: #041d1c;
+            --text-light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        html { height: auto; overflow-y: auto; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0d1117; color: var(--text-light); display: block; }
+
+        .app-container { width: 100%; max-width: 480px; background: var(--dark-teal); min-height: 100vh; position: relative; overflow-x: hidden; margin: 0 auto; }
+
+        /* --- HEADER & MENU --- */
+        .header-bar { position: sticky; top: 0; background: rgba(6, 44, 43, 0.95); backdrop-filter: blur(10px); height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; }
+        .logo-img { width: 35px; height: 35px; border-radius: 50%; border: 1.5px solid var(--primary); }
+        
+        .hamburger { font-size: 1.5rem; cursor: pointer; color: var(--primary); }
+        
+        /* Menu Overlay */
+        .menu-overlay { position: fixed; top: 70px; right: -100%; width: 200px; background: var(--darker); border-radius: 0 0 0 20px; padding: 20px; transition: 0.3s; z-index: 999; box-shadow: -10px 10px 30px rgba(0,0,0,0.5); }
+        .menu-overlay.active { right: 0; }
+        .menu-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+
+        /* --- CONTENT --- */
+        .content { padding: 30px 20px; }
+        .content h1 { color: var(--primary); font-size: 2rem; margin-bottom: 20px; text-align: center; }
+        .content > p:first-of-type { text-align: center; font-size: 1rem; color: #bbb; margin-bottom: 30px; }
+
+        .content h2 { color: var(--primary); font-size: 1.3rem; margin-top: 30px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .content h2 i { font-size: 1.5rem; }
+
+        .content h3 { color: #FFD699; font-size: 1rem; margin-top: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .content h3 i { font-size: 1.1rem; }
+
+        .content p { font-size: 0.95rem; line-height: 1.8; margin-bottom: 15px; color: #ddd; }
+        .content ul { list-style: none; margin-left: 0; padding-left: 0; margin-bottom: 20px; margin-left: 20px; }
+        .content li { font-size: 0.95rem; line-height: 1.8; margin-bottom: 10px; padding-left: 25px; position: relative; }
+        .content li i { position: absolute; left: 0; color: var(--primary); font-size: 1rem; }
+
+        .section { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin: 20px 0; border-left: 4px solid var(--primary); }
+
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { color: #FFD699; }
+
+        .contact-box { background: rgba(255, 184, 0, 0.1); padding: 20px; border-radius: 15px; border: 2px solid var(--primary); margin: 20px 0; }
+        .contact-box p { margin-bottom: 10px; }
+        .contact-box strong { color: var(--primary); }
+
+        .signature { text-align: center; margin-top: 40px; padding: 30px; background: rgba(255, 184, 0, 0.1); border-radius: 15px; border: 2px solid var(--primary); }
+        .signature p { font-size: 1rem; color: var(--primary); font-weight: 700; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <nav class="header-bar">
+        <div class="logo-area">
+            <img src="WhatsApp Image 2026-03-22 at 20.57.56 (1).jpeg" class="logo-img" alt="U">
+            <span>Universeach Party</span>
+        </div>
+        <div class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars-staggered"></i></div>
+    </nav>
+
+    <div class="menu-overlay" id="side-menu">
+        <div class="menu-item" onclick="goHome()">
+            <i class="fa-solid fa-arrow-left"></i> <span>Retour</span>
+        </div>
+        <div class="menu-item"><i class="fa-solid fa-circle-info"></i> Aide</div>
+        <div class="menu-item" onclick="window.location.href='About.html'"><i class="fa-solid fa-circle-question"></i> À propos</div>
+    </div>
+
+    <div class="content">
+        <a href="index.html" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i> Retour
+        </a>
+
+        <h1>Aide – Universearch Party</h1>
+        <p>Bienvenue dans l'espace d'assistance d'Universearch Party.</p>
+        <p>Nous sommes là pour vous accompagner à chaque étape de votre expérience <i class="fa-solid fa-party-horn"></i></p>
+
+        <!-- Réservation & Tickets Section -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-ticket"></i> Réservation & Tickets
+            </h2>
+
+            <h3><i class="fa-solid fa-question"></i> Comment réserver mon pass ?</h3>
+            <p>Cliquez sur "Réserver mon pass", remplissez vos informations, puis suivez les instructions de paiement.</p>
+
+            <h3><i class="fa-solid fa-question"></i> Quand vais-je recevoir mon ticket ?</h3>
+            <p>Votre ticket est généré immédiatement après la soumission du paiement, avec un statut "en attente". Il sera validé dès confirmation par l'administrateur.</p>
+
+            <h3><i class="fa-solid fa-question"></i> Puis-je acheter plusieurs tickets ?</h3>
+            <p>Oui, vous pouvez sélectionner le nombre de tickets souhaité avant de confirmer le paiement.</p>
+        </div>
+
+        <!-- Paiement Section -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-credit-card"></i> Paiement
+            </h2>
+
+            <h3><i class="fa-solid fa-question"></i> Quels moyens de paiement sont acceptés ?</h3>
+            <ul>
+                <li><i class="fa-solid fa-mobile"></i> MTN MoMo</li>
+                <li><i class="fa-solid fa-mobile"></i> Airtel Money</li>
+            </ul>
+
+            <h3><i class="fa-solid fa-question"></i> Comment effectuer le paiement ?</h3>
+            <p>Effectuez un transfert manuel vers le numéro affiché, puis renseignez les informations demandées.</p>
+
+            <h3><i class="fa-solid fa-question"></i> Pourquoi mon paiement est-il en attente ?</h3>
+            <p>Tous les paiements sont vérifiés manuellement pour garantir la sécurité et éviter les fraudes.</p>
+
+            <h3><i class="fa-solid fa-question"></i> Que faire si mon paiement n'est pas validé ?</h3>
+            <p>Vérifiez que :</p>
+            <ul>
+                <li><i class="fa-solid fa-check"></i> Le montant est correct</li>
+                <li><i class="fa-solid fa-check"></i> Le numéro utilisé est bien renseigné</li>
+                <li><i class="fa-solid fa-check"></i> Le nom correspond au payeur</li>
+            </ul>
+        </div>
+
+        <!-- Ticket & QR Code Section -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-mobile"></i> Ticket & QR Code
+            </h2>
+
+            <h3><i class="fa-solid fa-question"></i> À quoi sert le QR code ?</h3>
+            <p>Le QR code est votre pass d'entrée. Il sera scanné à l'entrée de l'événement.</p>
+
+            <h3><i class="fa-solid fa-question"></i> Dois-je imprimer mon ticket ?</h3>
+            <p>Non, vous pouvez simplement présenter votre ticket sur votre téléphone.</p>
+
+            <h3><i class="fa-solid fa-question"></i> Puis-je transférer mon ticket ?</h3>
+            <p>Non, chaque ticket est personnel et lié à un utilisateur.</p>
+        </div>
+
+        <!-- Problèmes fréquents Section -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-triangle-exclamation"></i> Problèmes fréquents
+            </h2>
+
+            <h3><i class="fa-solid fa-bug"></i> Je n'arrive pas à réserver</h3>
+            <ul>
+                <li><i class="fa-solid fa-circle-check"></i> Vérifiez votre connexion internet</li>
+                <li><i class="fa-solid fa-circle-check"></i> Rechargez la page</li>
+                <li><i class="fa-solid fa-circle-check"></i> Assurez-vous que tous les champs sont remplis</li>
+            </ul>
+
+            <h3><i class="fa-solid fa-bug"></i> Le site ne fonctionne pas correctement</h3>
+            <ul>
+                <li><i class="fa-solid fa-circle-check"></i> Essayez un autre navigateur</li>
+                <li><i class="fa-solid fa-circle-check"></i> Videz le cache</li>
+                <li><i class="fa-solid fa-circle-check"></i> Réessayez plus tard</li>
+            </ul>
+        </div>
+
+        <!-- Support Section -->
+        <div class="contact-box">
+            <h2 style="margin-top: 0;">
+                <i class="fa-solid fa-headset"></i> Support
+            </h2>
+            <p>Si vous rencontrez un problème ou avez une question :</p>
+            <p><i class="fa-solid fa-envelope"></i> <strong>Email :</strong> support@universearch.com</p>
+            <p><i class="fa-solid fa-whatsapp"></i> <strong>WhatsApp :</strong> disponible prochainement</p>
+            <p style="margin-top: 15px; color: var(--primary);">Notre équipe vous répondra dans les plus brefs délais.</p>
+        </div>
+
+        <!-- Rappel important Section -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-clipboard"></i> Rappel important
+            </h2>
+            <p>Chaque participant doit respecter les règles de l'événement, notamment :</p>
+            <ul>
+                <li><i class="fa-solid fa-arrow-right"></i> Apporter les éléments demandés (ex : bouteilles)</li>
+                <li><i class="fa-solid fa-arrow-right"></i> Respecter les autres participants</li>
+                <li><i class="fa-solid fa-arrow-right"></i> Adopter une attitude responsable</li>
+            </ul>
+        </div>
+
+        <!-- Engagement Section -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-star"></i> Notre engagement
+            </h2>
+            <p>Universearch Party s'engage à vous offrir :</p>
+            <ul>
+                <li><i class="fa-solid fa-check"></i> Une expérience sécurisée</li>
+                <li><i class="fa-solid fa-check"></i> Une organisation fluide</li>
+                <li><i class="fa-solid fa-check"></i> Des moments inoubliables</li>
+            </ul>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="signature">
+            <p>Universearch Party — Connecter, partager, vibrer. <i class="fa-solid fa-rocket"></i></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleMenu() {
+        document.getElementById('side-menu').classList.toggle('active');
+    }
+
+    function goHome() {
+        window.location.href = 'index.html';
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('side-menu');
+        const hamburger = document.querySelector('.hamburger');
+        
+        if (!menu.contains(event.target) && !hamburger.contains(event.target)) {
+            menu.classList.remove('active');
+        }
+    });
+</script>
+
+</body>
+</html>

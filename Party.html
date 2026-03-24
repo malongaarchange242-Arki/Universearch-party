@@ -114,7 +114,7 @@
         .form-control select { background: rgba(255,255,255,0.05); color: white; }
         .form-control option { background: var(--darker); color: white; }
 
-        .qty-selector { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; }
+        .qty-selector { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(255, 184, 0, 0.5); transition: all 0.3s ease; }
         .qty-btn { width: 35px; height: 35px; border-radius: 10px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-size: 1.2rem; cursor: pointer; }
 
         /* --- TICKET DESIGN (PREMIUM) --- */
@@ -286,9 +286,9 @@
                 </div>
                 
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/MTN_Logo.svg" width="50">
+                    <img id="payment-logo" src="" style="max-height: 80px; object-fit: contain;" alt="Payment Provider Logo">
                 </div>
-                <button class="btn" style="background: #ffcc00; color: #000;" id="pay-btn" onclick="confirmPayment()">
+                <button class="btn" style="background: #ffcc00; color: #000; transition: all 0.3s ease;" id="pay-btn" onclick="confirmPayment()">
                     <span id="pay-text">Confirmer paiement</span>
                     <div class="loader" id="loader"></div>
                 </button>
@@ -359,6 +359,9 @@
         const title = document.getElementById('payment-info-title');
         const numberEl = document.getElementById('payment-number');
         const instruction = document.getElementById('payment-instruction');
+        const logoImg = document.getElementById('payment-logo');
+        const payBtn = document.getElementById('pay-btn');
+        const qtySelector = document.querySelector('.qty-selector');
 
         if (method === 'MTN') {
             mtnBtn.style.opacity = '1';
@@ -367,6 +370,12 @@
             title.innerText = 'Informations de Paiement - MTN MoMo';
             numberEl.innerText = '06 96 11 04 7';
             instruction.innerText = 'Effectuez le paiement manuellement sur votre application MTN MoMo';
+            logoImg.src = 'https://upload.wikimedia.org/wikipedia/commons/a/af/MTN_Logo.svg';
+            payBtn.style.background = '#ffcc00';
+            payBtn.style.color = '#000';
+            qtySelector.style.borderColor = 'rgba(255, 184, 0, 0.5)';
+            qtySelector.style.borderWidth = '1px';
+            qtySelector.style.borderStyle = 'solid';
         } else {
             mtnBtn.style.opacity = '0.65';
             airtelBtn.style.opacity = '1';
@@ -374,6 +383,12 @@
             title.innerText = 'Informations de Paiement - Airtel Money';
             numberEl.innerText = '04 56 78 90 1';
             instruction.innerText = 'Effectuez le paiement manuellement sur votre application Airtel Money';
+            logoImg.src = './airtel-congo-b-0405ea68.jpg';
+            payBtn.style.background = '#ff3b3b';
+            payBtn.style.color = '#fff';
+            qtySelector.style.borderColor = 'rgba(255, 59, 59, 0.5)';
+            qtySelector.style.borderWidth = '1px';
+            qtySelector.style.borderStyle = 'solid';
         }
     }
 

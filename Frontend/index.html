@@ -114,7 +114,7 @@
         .form-control select { background: rgba(255,255,255,0.05); color: white; }
         .form-control option { background: var(--darker); color: white; }
 
-        .qty-selector { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; }
+        .qty-selector { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(255, 184, 0, 0.5); transition: all 0.3s ease; }
         .qty-btn { width: 35px; height: 35px; border-radius: 10px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-size: 1.2rem; cursor: pointer; }
 
         /* --- TICKET DESIGN (PREMIUM) --- */
@@ -146,7 +146,8 @@
         <div class="menu-item" id="menu-auth-btn" onclick="handleMenuAuth()">
             <i class="fa-solid fa-user"></i> <span id="menu-auth-text">Connexion</span>
         </div>
-        <div class="menu-item"><i class="fa-solid fa-circle-info"></i> Aide</div>
+        <div class="menu-item" onclick="window.location.href='Help.html'"><i class="fa-solid fa-circle-info"></i> Aide</div>
+        <div class="menu-item" onclick="window.location.href='About.html'"><i class="fa-solid fa-circle-question"></i> À propos</div>
     </div>
 
     <div id="ui-content">
@@ -157,7 +158,7 @@
 
         <div class="info-grid">
             <div class="info-card"><i class="fa-solid fa-calendar"></i><span>Date</span><p>19 Avril</p></div>
-            <div class="info-card"><i class="fa-solid fa-location-dot"></i><span>Lieu</span><p>Côte Sauvage</p></div>
+            <div class="info-card"><i class="fa-solid fa-location-dot"></i><span>Lieu</span><p>Cote Sauvage</p></div>
             <div class="info-card"><i class="fa-solid fa-ticket"></i><span>Ticket</span><p>2.500 XAF</p></div>
         </div>
 
@@ -188,7 +189,7 @@
         </div>
 
         <div class="description-section" id="desc-section">
-            <h2>Journée Atiéké – UniverSearch Party</h2>
+            <h2>Journée Attiéké – UniverSearch Party</h2>
             <p>Une journée unique dédiée aux étudiants, pensée pour allier détente, rencontres et bonne ambiance dans un cadre convivial.</p>
             <p>Cette journée a été créée pour offrir bien plus qu'un simple moment festif : c'est une expérience où les étudiants peuvent se retrouver, échanger et créer de vraies connexions en dehors du cadre académique.</p>
             
@@ -202,12 +203,13 @@
 
             <p><strong><i class="fa-solid fa-champagne-glasses" style="color: var(--primary); margin-right: 8px;"></i>Au programme :</strong></p>
             <ul>
-                <li><i class="fa-solid fa-bowl-food" style="color: var(--primary); margin-right: 6px;"></i>Dégustation d'attiéké et repas entre participants</li>
-                <li><i class="fa-solid fa-music" style="color: var(--primary); margin-right: 6px;"></i>Ambiance musicale (DJ, playlist chill & afro vibes)</li>
-                <li><i class="fa-solid fa-handshake" style="color: var(--primary); margin-right: 6px;"></i>Moments de networking et rencontres</li>
-                <li><i class="fa-solid fa-camera" style="color: var(--primary); margin-right: 6px;"></i>Séances photos et souvenirs</li>
-                <li><i class="fa-solid fa-gamepad" style="color: var(--primary); margin-right: 6px;"></i>Jeux et animations</li>
-                <li><i class="fa-solid fa-comments" style="color: var(--primary); margin-right: 6px;"></i>Espaces d'échange et discussions</li>
+                <li><i class="fa-solid fa-id-card" style="color: var(--primary); margin-right: 6px;"></i>Carte brise-glace</li>
+                <li><i class="fa-solid fa-masks-theater" style="color: var(--primary); margin-right: 6px;"></i>Devine qui je suis</li>
+                <li><i class="fa-solid fa-person-running" style="color: var(--primary); margin-right: 6px;"></i>Course de relais</li>
+                <li><i class="fa-solid fa-utensils" style="color: var(--primary); margin-right: 6px;"></i>Concours du plus grand mangeur d'attiéké</li>
+                <li><i class="fa-solid fa-wine-glass" style="color: var(--primary); margin-right: 6px;"></i>Concours du plus grand buveur</li>
+                <li><i class="fa-solid fa-microphone" style="color: var(--primary); margin-right: 6px;"></i>Battle de rap improvisé</li>
+                <li><i class="fa-solid fa-ellipsis" style="color: var(--primary); margin-right: 6px;"></i>Et bien d'autres surprises...</li>
             </ul>
 
             <p style="text-align: center; margin-top: 15px; color: var(--primary);"><strong>UniverSearch Party, c'est créer des moments simples, vrais et mémorables entre étudiants.</strong></p>
@@ -219,7 +221,7 @@
             <i class="fa-solid fa-wine-bottle"></i>
             <div>
                 <h4>Règle Obligatoire :</h4>
-                <p style="font-size: 0.8rem;">Chaque étudiant emmène 3 bouteilles de son choix.</p>
+                <p style="font-size: 0.8rem;">Chaque participant emmène 3 bouteilles de son choix.</p>
             </div>
         </div>
 
@@ -286,9 +288,9 @@
                 </div>
                 
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/MTN_Logo.svg" width="50">
+                    <img id="payment-logo" src="" style="max-height: 80px; object-fit: contain;" alt="Payment Provider Logo">
                 </div>
-                <button class="btn" style="background: #ffcc00; color: #000;" id="pay-btn" onclick="confirmPayment()">
+                <button class="btn" style="background: #ffcc00; color: #000; transition: all 0.3s ease;" id="pay-btn" onclick="confirmPayment()">
                     <span id="pay-text">Confirmer paiement</span>
                     <div class="loader" id="loader"></div>
                 </button>
@@ -359,6 +361,9 @@
         const title = document.getElementById('payment-info-title');
         const numberEl = document.getElementById('payment-number');
         const instruction = document.getElementById('payment-instruction');
+        const logoImg = document.getElementById('payment-logo');
+        const payBtn = document.getElementById('pay-btn');
+        const qtySelector = document.querySelector('.qty-selector');
 
         if (method === 'MTN') {
             mtnBtn.style.opacity = '1';
@@ -367,6 +372,12 @@
             title.innerText = 'Informations de Paiement - MTN MoMo';
             numberEl.innerText = '06 96 11 04 7';
             instruction.innerText = 'Effectuez le paiement manuellement sur votre application MTN MoMo';
+            logoImg.src = 'https://upload.wikimedia.org/wikipedia/commons/a/af/MTN_Logo.svg';
+            payBtn.style.background = '#ffcc00';
+            payBtn.style.color = '#000';
+            qtySelector.style.borderColor = 'rgba(255, 184, 0, 0.5)';
+            qtySelector.style.borderWidth = '1px';
+            qtySelector.style.borderStyle = 'solid';
         } else {
             mtnBtn.style.opacity = '0.65';
             airtelBtn.style.opacity = '1';
@@ -374,6 +385,12 @@
             title.innerText = 'Informations de Paiement - Airtel Money';
             numberEl.innerText = '04 56 78 90 1';
             instruction.innerText = 'Effectuez le paiement manuellement sur votre application Airtel Money';
+            logoImg.src = './airtel-congo-b-0405ea68.jpg';
+            payBtn.style.background = '#ff3b3b';
+            payBtn.style.color = '#fff';
+            qtySelector.style.borderColor = 'rgba(255, 59, 59, 0.5)';
+            qtySelector.style.borderWidth = '1px';
+            qtySelector.style.borderStyle = 'solid';
         }
     }
 
@@ -837,7 +854,7 @@
         document.getElementById('t-name-text').innerText = displayName.toUpperCase();
 
         // Set ticket image
-        document.getElementById('ticket-image').src = '../Ticket Universearch.png';
+        document.getElementById('ticket-image').src = 'Ticket Universearch.png';
 
         // Display QR code from backend
         if (qrCodeImage) {

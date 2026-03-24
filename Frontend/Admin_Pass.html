@@ -30,7 +30,7 @@
         /* VALIDATION MODAL */
         #scan-result { 
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; padding: 30px; border-radius: 25px; text-align: center; z-index: 2000;
+            width: 85%; max-width: 400px; padding: 40px 30px; border-radius: 25px; text-align: center; z-index: 2000;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
         .result-success { background: var(--success); color: #fff; }
@@ -120,8 +120,9 @@
 
         <div class="admin-list">
             <h3 style="margin: 20px 0 10px;">Paiements en attente</h3>
+            <input type="text" id="search-input" style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #333; background: rgba(255,255,255,0.05); color: #fff;" placeholder="🔍 Rechercher par nom..." oninput="filterPayments()">
             <div id="payments-table"></div>
-        </div>
+        </input>
 
         <div class="admin-list">
             <h3 style="margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">Dernières entrées</h3>
@@ -144,6 +145,7 @@
     let html5QrCode;
     const adminPass = "admin123"; // Mot de passe à changer
     let validatedTickets = JSON.parse(localStorage.getItem('validated_tickets') || '[]');
+    let allPayments = []; // Store all payments for filtering
 
     function loginAdmin() {
         const pass = document.getElementById('admin-pass').value;
@@ -172,51 +174,123 @@
     }
 
     function processScan(data) {
-        // Format attendu: UP|momo_reference|nom|status|QTY:X
-        const parts = data.split('|');
-        const overlay = document.getElementById('overlay');
-        const modal = document.getElementById('scan-result');
+        // QR code contient du texte chiffré AES-256-GCM
+        // Envoyer au backend pour déchiffrer et vérifier
+        verifyQRWithBackend(data);
+    }
+
+    function verifyQRWithBackend(encryptedData) {
+        // Afficher un message de vérification
+        showResult(true, "VÉRIFICATION", "Vérification du QR code...");
         
-        if (parts[0] === "UP" && parts.length >= 5) {
-            const momoReference = parts[1];
-            const name = parts[2];
-            const status = parts[3];
-            const qtyPart = parts[4];
-            const qty = qtyPart.split(':')[1] || 1;
+        fetch('https://universearch-party.onrender.com/payments/scan-qr', {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ encryptedQRData: encryptedData })
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(data => {
+                    throw new Error(data.message || 'QR verification failed');
+                });
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log('Full backend response:', data);
+            console.log('Data type:', typeof data);
+            console.log('Data keys:', Object.keys(data));
+            
+            // La structure retournée est: { success: true, data: { success: true, payment: {...}, message: ... } }
+            let payment = null;
+            
+            // Cas 1: Réponse imbriquée { data: { payment: {...} } }
+            if (data.data?.payment && typeof data.data.payment === 'object') {
+                payment = data.data.payment;
+                console.log('Case 1: Found in data.data.payment');
+            }
+            // Cas 2: Réponse standard { data: {...} }
+            else if (data.data && typeof data.data === 'object' && !data.data.payment) {
+                payment = data.data;
+                console.log('Case 2: Found in data.data');
+            }
+            // Cas 3: Réponse { payment: {...} }
+            else if (data.payment && typeof data.payment === 'object') {
+                payment = data.payment;
+                console.log('Case 3: Found in data.payment');
+            }
+            // Cas 4: Réponse directe des données
+            else if (data.momoReference || data.momo_reference || data.customerName || data.customer_name) {
+                payment = data;
+                console.log('Case 4: Data is payment object directly');
+            }
+            // Cas 5: Message d'erreur?
+            else {
+                console.error('No payment data found in response');
+                console.error('Response structure:', JSON.stringify(data, null, 2));
+                throw new Error('Invalid response structure from backend');
+            }
+            
+            console.log('Final payment object:', payment);
+            
+            // Extraire les champs avec support camelCase et snake_case
+            const momoReference = payment.momoReference || payment.momo_reference || payment.code || 'UNKNOWN';
+            const name = payment.customerName || payment.customer_name || payment.name || 'Client';
+            const quantity = payment.quantity || payment.qty || 1;
+            const status = payment.status || '';
+            
+            console.log('Extracted values:');
+            console.log('  momoReference:', momoReference);
+            console.log('  name:', name);
+            console.log('  quantity:', quantity);
+            console.log('  status:', status, '(type:', typeof status, ')');
             
             // Check if ticket is already validated (scanned)
-            if (validatedTickets.includes(momoReference)) {
+            if (momoReference !== 'UNKNOWN' && validatedTickets.includes(momoReference)) {
                 showResult(false, "ALERTE", "TICKET DÉJÀ SCANNÉ !");
                 return;
             }
             
+            // Normalize status
+            const normalizedStatus = status ? String(status).toUpperCase().trim() : '';
+            console.log('Normalized status:', normalizedStatus);
+            
             // Check status
-            if (status === "SUCCESSFUL" || status === "SUCCESS") {
+            if (normalizedStatus === "SUCCESSFUL" || normalizedStatus === "SUCCESS") {
                 // SUCCESS - Valid ticket
                 const ticketInfo = {
                     code: momoReference,
                     name: name,
-                    qty: qty,
-                    status: status
+                    qty: quantity,
+                    status: normalizedStatus
                 };
 
-                showResult(true, "VALIDE", `${name} - ${qty} Pass`);
+                showResult(true, "VALIDE ✅", `${name}\n${quantity} Pass\n✓ Entrée autorisée`);
                 
                 // Sauvegarde
-                validatedTickets.push(momoReference);
+                if (momoReference !== 'UNKNOWN') {
+                    validatedTickets.push(momoReference);
+                }
                 saveEntry(ticketInfo);
                 
-            } else if (status === "PENDING") {
+            } else if (normalizedStatus === "PENDING") {
                 // PENDING - Payment not validated yet
-                showResult(false, "ALERTE", "PAIEMENT EN ATTENTE DE VALIDATION");
+                showResult(false, "⏳ EN ATTENTE", `${name}\nPaiement en attente\nde validation admin`);
+            } else if (normalizedStatus === "FAILED" || normalizedStatus === "REJECTED") {
+                // FAILED
+                showResult(false, "❌ REFUSÉ", `${name}\nCe paiement a été refusé`);
             } else {
-                // FAILED or other status
-                showResult(false, "ALERTE", "PAIEMENT REFUSÉ");
+                // Unknown or empty status
+                console.error('Unexpected status:', {status, type: typeof status, normalized: normalizedStatus});
+                showResult(false, "ℹ️ INFO", `${name}\nStatut: ${status || '(vide)' }\nRef: ${momoReference}`);
             }
-        } else {
-            // Invalid format
-            showResult(false, "ALERTE", "FORMAT QR INVALIDE");
-        }
+        })
+        .catch(err => {
+            console.error('Error verifying QR:', err);
+            console.error('Error stack:', err.stack);
+            showResult(false, "❌ ERREUR", err.message || "Ticket invalide ou falsifié");
+        });
     }
 
     function showResult(isSuccess, title, msg) {
@@ -226,7 +300,7 @@
         modal.className = isSuccess ? "result-success" : "result-error";
         document.getElementById('res-icon').className = isSuccess ? "fa-solid fa-circle-check fa-4x" : "fa-solid fa-circle-xmark fa-4x";
         document.getElementById('res-title').innerText = title;
-        document.getElementById('res-msg').innerText = msg;
+        document.getElementById('res-msg').innerHTML = msg.replace(/\n/g, '<br>');
         
         overlay.style.display = "block";
         modal.style.display = "block";
@@ -286,10 +360,16 @@
     }
 
     function renderPayments(payments) {
+        // Store all payments for filtering
+        allPayments = payments;
+        displayPayments(payments);
+    }
+
+    function displayPayments(payments) {
         const container = document.getElementById('payments-table');
 
         if (payments.length === 0) {
-            container.innerHTML = '<p style="text-align: center; opacity: 0.5;">Aucun paiement en attente</p>';
+            container.innerHTML = '<p style="text-align: center; opacity: 0.5;">Aucun paiement trouvé</p>';
             return;
         }
 
@@ -369,6 +449,29 @@
             console.error('Error rejecting payment:', err);
             alert('❌ Erreur refus: ' + err.message);
         });
+    }
+
+    function filterPayments() {
+        const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+        
+        if (!searchTerm) {
+            // If search is empty, display all payments
+            displayPayments(allPayments);
+            return;
+        }
+        
+        // Filter payments by customer name, phone, or reference
+        const filtered = allPayments.filter(payment => {
+            const customerName = (payment.customerName || '').toLowerCase();
+            const phoneNumber = (payment.phoneNumber || '').toLowerCase();
+            const momoRef = (payment.momoReference || '').toLowerCase();
+            
+            return customerName.includes(searchTerm) || 
+                   phoneNumber.includes(searchTerm) || 
+                   momoRef.includes(searchTerm);
+        });
+        
+        displayPayments(filtered);
     }
 </script>
 
