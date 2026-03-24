@@ -111,6 +111,32 @@ export class PaymentsController {
   }
 
   /**
+   * Scan and decrypt QR code (admin)
+   * POST /payments/scan-qr
+   * Body: { encryptedQRData: string }
+   */
+  async scanQRCode(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { encryptedQRData } = request.body as { encryptedQRData: string };
+
+      if (!encryptedQRData) {
+        return reply.status(400).send(
+          errorResponse('Missing encryptedQRData field')
+        );
+      }
+
+      const decryptedData = await this.service.decryptAndVerifyQR(encryptedQRData);
+
+      return reply.status(200).send(
+        successResponse('QR code decrypted successfully', decryptedData)
+      );
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to decrypt QR code';
+      return reply.status(400).send(errorResponse(errorMessage));
+    }
+  }
+
+  /**
    * Validate payment (admin)
    * PATCH /payments/:paymentId/validate
    */

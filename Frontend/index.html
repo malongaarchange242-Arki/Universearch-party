@@ -6,6 +6,7 @@
     <title>Universeach Party - Billetterie Officielle</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     
     <style>
@@ -264,35 +265,48 @@
             </div>
 
             <div id="step-4" class="hidden">
-                <div class="ticket">
-                    <div class="ticket-top">
-                        <h3>UNIVERSEACH PARTY</h3>
-                        <p style="font-size: 1.2rem; font-weight: 800;">PASS OFFICIEL</p>
+                <div class="ticket" style="position: relative; background: none; border-radius: 25px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin-top: 20px;">
+                    <img id="ticket-image" src="" style="width: 100%; height: auto; display: block;">
+                    
+                    <!-- QR Code ajusté pour correspondre aux proportions de l'image -->
+                    <div style="
+                        position: absolute;
+                        top: 58%;
+                        left: 81%;
+                        transform: translate(-50%, -50%);
+                        width: 28%;
+                        height: 38%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: transparent;
+                    ">
+                        <img id="qr-code-img"
+                             src=""
+                             style="
+                                width: 90%;
+                                height: 90%;
+                                object-fit: contain;
+                             ">
                     </div>
-                    <div class="ticket-body">
-                        <h2 id="t-name">JEAN DUPONT</h2>
-                        <p id="t-school" style="color: #666; font-weight: 600; margin-bottom: 15px;">ESGAE</p>
-                        
-                        <div class="qr-wrap">
-                            <canvas id="qr-code"></canvas>
-                        </div>
-                        
-                        <div class="pass-code" id="t-code">UP-X921</div>
-                        <p style="font-size: 0.7rem; color: #999; margin-bottom: 15px;">CODE SECRET (Ne pas partager)</p>
-                        
-                        <div style="display: flex; justify-content: space-around; border-top: 1px solid #eee; padding-top: 15px;">
-                            <div style="text-align: center;">
-                                <i class="fa-solid fa-users" style="color: var(--dark-teal);"></i><br>
-                                <small id="t-qty" style="font-weight: 800;">Single Entry</small>
-                            </div>
-                            <div style="text-align: center;">
-                                <i class="fa-solid fa-wine-bottle" style="color: var(--dark-teal);"></i><br>
-                                <small style="font-weight: 800;">3 Bottles Check</small>
-                            </div>
-                        </div>
+
+                    <!-- Status Badge Overlay -->
+                    <div style="position: absolute; top: 8%; right: 5%; background: rgba(0,0,0,0.7); color: white; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-align: center; font-size: 0.9rem;">
+                        <div id="status-badge"></div>
                     </div>
                 </div>
-                <button class="btn" onclick="window.print()" style="margin-top: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--primary);">
+
+                <!-- Ticket Info Text -->
+                <div style="text-align: center; margin-top: 30px; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(5px); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="color: var(--primary); margin-bottom: 10px;" id="t-name-text">JEAN DUPONT</h3>
+                    <p id="t-code-text" style="font-size: 0.9rem; color: #ccc; margin-bottom: 10px;">Код: UP-XXXX</p>
+                    <p style="font-size: 0.85rem; color: #aaa;">
+                        Votre paiement est <strong id="payment-status-text">en attente de validation</strong> par l'administrateur.
+                        <br>Vous recevrez une confirmation dans les minutes qui suivent.
+                    </p>
+                </div>
+
+                <button class="btn" onclick="downloadTicketImage()" style="margin-top: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--primary);">
                     <i class="fa-solid fa-download"></i> Télécharger le Pass
                 </button>
             </div>
@@ -711,9 +725,10 @@
             const payment = data.data;
             const paymentId = payment.id;
             const momoReference = payment.momoReference;
+            const qrCode = payment.qrCode; // QR code from backend
 
             // Afficher ticket immédiatement avec status PENDING
-            showTicket(paymentId, 'PENDING', momoReference, clientName);
+            showTicket(paymentId, 'PENDING', momoReference, clientName, qrCode);
 
             // Lancer la surveillance auto du statut
             watchPayment(paymentId);
@@ -781,7 +796,7 @@
     }
 
     // Ticket Generation
-    function showTicket(paymentId, status = 'PENDING', momoReference = '', clientName = '') {
+    function showTicket(paymentId, status = 'PENDING', momoReference = '', clientName = '', qrCodeImage = '') {
         document.getElementById('step-3').classList.add('hidden');
         document.getElementById('step-4').classList.remove('hidden');
 
@@ -789,24 +804,31 @@
 
         // Use client name if provided, otherwise use registered user name
         const displayName = clientName || user.name;
-        document.getElementById('t-name').innerText = displayName.toUpperCase();
-        document.getElementById('t-school').innerText = user.school ? user.school.toUpperCase() : 'NON APPLICABLE';
+        document.getElementById('t-name-text').innerText = displayName.toUpperCase();
 
-        const statusText = status === 'SUCCESSFUL' ? '✅ VALIDÉ' : '⏳ EN ATTENTE';
-        document.getElementById('t-code').innerText = statusText;
+        // Set ticket image
+        document.getElementById('ticket-image').src = '../Ticket Universearch.png';
 
-        const qtyText = document.getElementById('t-qty');
-        qtyText.innerText = qty > 1 ? qty + ' ENTRÉES' : 'SINGLE ENTRY';
+        // Display QR code from backend
+        if (qrCodeImage) {
+            document.getElementById('qr-code-img').src = qrCodeImage;
+        }
 
-        // Generate QR code in new format: UP|momo_reference|nom|PENDING|QTY:X
-        const qrValue = `UP|${momoReference}|${displayName}|${status}|QTY:${qty}`;
+        // Set status
+        const statusBadge = document.getElementById('status-badge');
+        const statusText = document.getElementById('payment-status-text');
         
-        new QRious({
-            element: document.getElementById('qr-code'),
-            size: 150,
-            value: qrValue,
-            foreground: '#062c2b'
-        });
+        if (status === 'SUCCESSFUL' || status === 'SUCCESS') {
+            statusBadge.innerText = '';
+            statusBadge.style.background = 'rgba(46, 204, 113, 0.8)';
+            statusText.innerText = 'validé et confirmé';
+            document.getElementById('t-code-text').innerText = `Code: ${momoReference}`;
+        } else {
+            statusBadge.innerText = '';
+            statusBadge.style.background = 'rgba(255, 193, 7, 0.8)';
+            statusText.innerText = 'en attente de validation';
+            document.getElementById('t-code-text').innerText = `Référence: ${momoReference}`;
+        }
     }
 
     function watchPayment(paymentId) {
@@ -817,9 +839,15 @@
                 return res.json();
             })
             .then(data => {
-                if (data.data && data.data.status === 'SUCCESSFUL') {
-                    showTicket(paymentId, 'SUCCESSFUL');
-                    clearInterval(interval);
+                if (data.data) {
+                    const payment = data.data;
+                    if (payment.status === 'SUCCESSFUL') {
+                        showTicket(paymentId, 'SUCCESSFUL', payment.momoReference, payment.customerName, payment.qrCode);
+                        clearInterval(interval);
+                    } else if (payment.status === 'FAILED') {
+                        showTicket(paymentId, 'FAILED', payment.momoReference, payment.customerName, payment.qrCode);
+                        clearInterval(interval);
+                    }
                 }
             })
             .catch(err => {
@@ -837,6 +865,29 @@
         const btn = event.target;
         descSection.classList.toggle('expanded');
         btn.innerText = descSection.classList.contains('expanded') ? 'Voir moins' : 'Voir plus';
+    }
+
+    // Download Ticket as Image
+    function downloadTicketImage() {
+        const ticketElement = document.querySelector('.ticket');
+        const clientName = document.getElementById('t-name-text').innerText;
+        
+        html2canvas(ticketElement, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            logging: false
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.download = `Ticket_Universeach_${clientName.replace(/\s+/g, '_')}_${Date.now()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }).catch(err => {
+            console.error('Erreur lors du téléchargement:', err);
+            alert('Échec du téléchargement du ticket');
+        });
     }
 </script>
 

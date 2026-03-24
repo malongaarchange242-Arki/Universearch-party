@@ -89,6 +89,10 @@ export const createApp = async (): Promise<FastifyInstance> => {
     paymentsController.requestPayment(request, reply)
   );
 
+  app.post('/payments/scan-qr', (request, reply) =>
+    paymentsController.scanQRCode(request, reply)
+  );
+
   app.get('/payments/status/:reference', (request, reply) =>
     paymentsController.checkPaymentStatus(request, reply)
   );

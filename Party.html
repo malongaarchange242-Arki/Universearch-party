@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universeach Party - Billetterie Officielle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #FFB800;
+            --dark-teal: #062c2b;
+            --darker: #041d1c;
+            --text-light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.1);
+            --gold-gradient: linear-gradient(135deg, #d4af37 0%, #f1d592 50%, #d4af37 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0d1117; color: var(--text-light); display: flex; justify-content: center; }
+
+        .app-container { width: 100%; max-width: 480px; background: var(--dark-teal); min-height: 100vh; position: relative; overflow-x: hidden; }
+
+        /* --- HEADER & MENU --- */
+        .header-bar { position: sticky; top: 0; background: rgba(6, 44, 43, 0.95); backdrop-filter: blur(10px); height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; }
+        .logo-img { width: 35px; height: 35px; border-radius: 50%; border: 1.5px solid var(--primary); }
+        
+        .hamburger { font-size: 1.5rem; cursor: pointer; color: var(--primary); }
+        
+        /* Menu Overlay */
+        .menu-overlay { position: fixed; top: 70px; right: -100%; width: 200px; background: var(--darker); border-radius: 0 0 0 20px; padding: 20px; transition: 0.3s; z-index: 999; box-shadow: -10px 10px 30px rgba(0,0,0,0.5); }
+        .menu-overlay.active { right: 0; }
+        .menu-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+
+        /* --- HERO --- */
+        .hero { background: linear-gradient(rgba(6,44,43,0.4), var(--dark-teal)), url('universearch party.jpeg') center/cover; padding: 40px 20px; text-align: center; }
+        .hero h1 { font-size: 2.4rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .hero p { opacity: 0.9; font-size: 0.9rem; }
+
+        /* --- INFO BLOCKS --- */
+        .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 20px; margin-top: -20px; }
+        .info-card { background: var(--glass); backdrop-filter: blur(5px); padding: 12px 5px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .info-card i { color: var(--primary); font-size: 1rem; margin-bottom: 5px; }
+        .info-card span { display: block; font-size: 0.65rem; color: #aaa; text-transform: uppercase; }
+        .info-card p { font-size: 0.8rem; font-weight: 700; }
+
+        .description-section { background: rgba(255,255,255,0.08); backdrop-filter: blur(5px); margin: 20px; padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); position: relative; transition: max-height 0.4s ease-out; overflow: hidden; max-height: 150px; }
+        .description-section.expanded { max-height: none; }
+        .description-section h2 { color: var(--primary); font-size: 1.3rem; margin-bottom: 15px; text-align: center; }
+        .description-section p { font-size: 0.85rem; line-height: 1.6; margin-bottom: 12px; color: #ccc; }
+        .description-section ul { margin-left: 15px; font-size: 0.85rem; line-height: 1.6; color: #ccc; }
+        .description-section li { margin-bottom: 8px; }
+        .description-section strong { color: var(--primary); }
+        .description-gradient { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(transparent, rgba(6, 44, 43, 0.9)); pointer-events: none; transition: opacity 0.4s ease-out; }
+        .description-section.expanded .description-gradient { opacity: 0; }
+
+        .countdown { background: rgba(255, 184, 0, 0.15); backdrop-filter: blur(5px); margin: 20px; padding: 20px; border-radius: 15px; border: 2px solid var(--primary); text-align: center; }
+        .countdown h3 { color: var(--primary); font-size: 0.9rem; margin-bottom: 15px; letter-spacing: 1px; }
+        .countdown-timer { display: flex; justify-content: space-around; gap: 10px; }
+        .countdown-box { background: rgba(255,255,255,0.08); padding: 12px; border-radius: 10px; flex: 1; }
+        .countdown-number { font-size: 1.8rem; font-weight: 800; color: var(--primary); display: block; }
+        .countdown-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; margin-top: 5px; }
+
+        .progress-container { margin-top: 15px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 10px; overflow: hidden; }
+        .progress-bar { height: 8px; background: linear-gradient(90deg, var(--primary), #FFD699); border-radius: 10px; transition: width 0.3s ease; }
+        .progress-text { font-size: 0.65rem; color: #aaa; margin-top: 5px; text-align: center; }
+
+        .rule-bar { background: #fff; color: #000; margin: 20px; padding: 15px; border-radius: 15px; display: flex; align-items: center; gap: 15px; }
+        .rule-bar i { font-size: 1.8rem; opacity: 0.8; }
+        .rule-bar h4 { font-size: 0.85rem; font-weight: 800; }
+
+        /* --- ACTIONS & FORMS --- */
+        .container { padding: 0 20px 40px; }
+        .btn { width: 100%; padding: 18px; border-radius: 15px; border: none; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
+        .btn-reserve { background: var(--primary); color: var(--dark-teal); box-shadow: 0 10px 20px rgba(255, 184, 0, 0.2); }
+        .btn-toggle-desc { background: transparent; color: var(--primary); border: 1px solid var(--primary); width: auto; display: block; margin: 15px auto 0; padding: 10px 20px; font-size: 0.9rem; }
+        
+        .form-control { width: 100%; padding: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; margin-bottom: 15px; outline: none; }
+        .form-control:focus { border-color: var(--primary); }
+        .form-control select { background: rgba(255,255,255,0.05); color: white; }
+        .form-control option { background: var(--darker); color: white; }
+
+        .qty-selector { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; }
+        .qty-btn { width: 35px; height: 35px; border-radius: 10px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-size: 1.2rem; cursor: pointer; }
+
+        /* --- TICKET DESIGN (PREMIUM) --- */
+        .ticket { background: #fff; color: #000; border-radius: 25px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin-top: 20px; }
+        .ticket-top { background: var(--darker); color: #fff; padding: 25px; text-align: center; border-bottom: 2px dashed #ccc; }
+        .ticket-top h3 { color: var(--primary); letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 5px; }
+        .ticket-body { padding: 25px; text-align: center; background: radial-gradient(circle at top right, #fff, #f0f0f0); }
+        
+        .qr-wrap { background: #fff; padding: 15px; border-radius: 15px; display: inline-block; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .pass-code { background: #000; color: #fff; padding: 12px; border-radius: 10px; font-family: monospace; font-size: 1.3rem; letter-spacing: 3px; margin-bottom: 5px; }
+
+        .hidden { display: none; }
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--primary); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: none; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <nav class="header-bar">
+        <div class="logo-area">
+            <img src="WhatsApp Image 2026-03-22 at 20.57.56 (1).jpeg" class="logo-img" alt="U">
+            <span>Universeach Party</span>
+        </div>
+        <div class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars-staggered"></i></div>
+    </nav>
+
+    <div class="menu-overlay" id="side-menu">
+        <div class="menu-item" id="menu-auth-btn" onclick="handleMenuAuth()">
+            <i class="fa-solid fa-user"></i> <span id="menu-auth-text">Connexion</span>
+        </div>
+        <div class="menu-item"><i class="fa-solid fa-circle-info"></i> Aide</div>
+    </div>
+
+    <div id="ui-content">
+        <header class="hero">
+            <h1>Journée Atiéké</h1>
+            <p>Plongez dans l'ambiance "Chill, Food & Sun".<br>La journée étudiante incontournable.</p>
+        </header>
+
+        <div class="info-grid">
+            <div class="info-card"><i class="fa-solid fa-calendar"></i><span>Date</span><p>19 Avril</p></div>
+            <div class="info-card"><i class="fa-solid fa-location-dot"></i><span>Lieu</span><p>Cote Sauvage</p></div>
+            <div class="info-card"><i class="fa-solid fa-ticket"></i><span>Ticket</span><p>2.500 XAF</p></div>
+        </div>
+
+        <div class="countdown">
+            <h3><i class="fa-solid fa-hourglass-end" style="margin-right: 8px;"></i>COMPTE À REBOURS</h3>
+            <div class="countdown-timer">
+                <div class="countdown-box">
+                    <span class="countdown-number" id="days">0</span>
+                    <span class="countdown-label">Jours</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="hours">0</span>
+                    <span class="countdown-label">Heures</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="minutes">0</span>
+                    <span class="countdown-label">Minutes</span>
+                </div>
+                <div class="countdown-box">
+                    <span class="countdown-number" id="seconds">0</span>
+                    <span class="countdown-label">Secondes</span>
+                </div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+                <div class="progress-text"><span id="progress-percent">100</span>% avant l'événement</div>
+            </div>
+        </div>
+
+        <div class="description-section" id="desc-section">
+            <h2>Journée Atiéké – UniverSearch Party</h2>
+            <p>Une journée unique dédiée aux étudiants, pensée pour allier détente, rencontres et bonne ambiance dans un cadre convivial.</p>
+            <p>Cette journée a été créée pour offrir bien plus qu'un simple moment festif : c'est une expérience où les étudiants peuvent se retrouver, échanger et créer de vraies connexions en dehors du cadre académique.</p>
+            
+            <p><strong><i class="fa-solid fa-bullseye" style="color: var(--primary); margin-right: 8px;"></i>Objectifs de la journée :</strong></p>
+            <ul>
+                <li>Favoriser les rencontres entre étudiants de différentes écoles</li>
+                <li>Créer des connexions et élargir son réseau</li>
+                <li>Offrir un moment de détente et de décompression</li>
+                <li>Encourager le partage et la convivialité</li>
+            </ul>
+
+            <p><strong><i class="fa-solid fa-champagne-glasses" style="color: var(--primary); margin-right: 8px;"></i>Au programme :</strong></p>
+            <ul>
+                <li><i class="fa-solid fa-bowl-food" style="color: var(--primary); margin-right: 6px;"></i>Dégustation d'attiéké et repas entre participants</li>
+                <li><i class="fa-solid fa-music" style="color: var(--primary); margin-right: 6px;"></i>Ambiance musicale (DJ, playlist chill & afro vibes)</li>
+                <li><i class="fa-solid fa-handshake" style="color: var(--primary); margin-right: 6px;"></i>Moments de networking et rencontres</li>
+                <li><i class="fa-solid fa-camera" style="color: var(--primary); margin-right: 6px;"></i>Séances photos et souvenirs</li>
+                <li><i class="fa-solid fa-gamepad" style="color: var(--primary); margin-right: 6px;"></i>Jeux et animations</li>
+                <li><i class="fa-solid fa-comments" style="color: var(--primary); margin-right: 6px;"></i>Espaces d'échange et discussions</li>
+            </ul>
+
+            <p style="text-align: center; margin-top: 15px; color: var(--primary);"><strong>UniverSearch Party, c'est créer des moments simples, vrais et mémorables entre étudiants.</strong></p>
+            <div class="description-gradient"></div>
+        </div>
+        <button class="btn btn-toggle-desc" onclick="toggleDescription()">Voir plus</button>
+
+        <div class="rule-bar">
+            <i class="fa-solid fa-wine-bottle"></i>
+            <div>
+                <h4>Règle Obligatoire :</h4>
+                <p style="font-size: 0.8rem;">Chaque étudiant emmène 3 bouteilles de son choix.</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="step-1">
+                <button class="btn btn-reserve" onclick="checkAuthFlow()">Réserver mon pass</button>
+            </div>
+
+            <div id="step-2" class="hidden">
+                <h3 style="margin-bottom: 20px; color: var(--primary);">Créer votre profil</h3>
+                <input type="text" id="name" class="form-control" placeholder="Nom et Prénom">
+                <input type="email" id="email" class="form-control" placeholder="Email">
+                <input type="tel" id="phone" class="form-control" placeholder="Téléphone">
+                <select id="is-student" class="form-control" onchange="toggleSchoolField()">
+                    <option value="">Êtes vous étudiant(e) ?</option>
+                    <option value="yes">Oui</option>
+                    <option value="no">Non</option>
+                </select>
+                <input type="text" id="school" class="form-control hidden" placeholder="Nom de l'école">
+                <button class="btn btn-reserve" onclick="finishRegistration()">Continuer</button>
+            </div>
+
+            <div id="step-3" class="hidden">
+                <h3 style="margin-bottom: 15px; text-align: center;">Paiement MTN MoMo</h3>
+                
+                <!-- Payment Method Selection -->
+                <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 15px;">
+                    <button id="method-mtn" class="btn" style="flex: 1; background: #ffd600; color: #000; border: 2px solid #e2a600; font-weight: 800;" onclick="setPaymentMethod('MTN')">🟡 MTN MoMo</button>
+                    <button id="method-airtel" class="btn" style="flex: 1; background: #ff3b3b; color: #fff; border: 2px solid #d30f0f; font-weight: 800;" onclick="setPaymentMethod('AIRTEL')">🔴 Airtel Money</button>
+                </div>
+
+                <!-- Account Details Section -->
+                <div id="payment-info" style="text-align: center; margin: 20px 0; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); padding: 20px; border-radius: 15px; border: 2px solid var(--primary);">
+                    <h4 id="payment-info-title" style="color: var(--primary); margin-bottom: 15px;"><i class="fa-solid fa-mobile-screen-button" style="margin-right: 8px;"></i>Informations de Paiement</h4>
+                    <div style="background: rgba(255,255,255,0.9); color: #000; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
+                        <p style="font-size: 1.1rem; font-weight: 700; margin-bottom: 5px;">Numéro: <strong id="payment-number" style="color: #e20074;">06 96 11 04 7</strong></p>
+                        <p style="font-size: 1rem; font-weight: 600; margin-bottom: 5px;">Nom du compte: <strong id="payment-name">UniverSearch</strong></p>
+                        <p style="font-size: 1rem; font-weight: 600;">Montant: <strong id="amount-display">2.500 XAF</strong></p>
+                    </div>
+                    <p id="payment-instruction" style="font-size: 0.85rem; color: #fff; margin-top: 10px;">Effectuez le paiement manuellement sur votre application MTN MoMo</p>
+                </div>
+                
+                <!-- User Input Section -->
+                <input type="text" id="client-name" class="form-control" placeholder="Votre nom complet" required style="margin-bottom: 15px;">
+                
+                <input type="tel" id="momo-phone" class="form-control" placeholder="Numéro utilisé pour payer (ex: +242069611047)" required style="margin-bottom: 15px;" oninput="formatPhoneNumber(event)">
+                
+                <div class="qty-selector">
+                    <span>Nombre de tickets</span>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <button class="qty-btn" onclick="updateQty(-1)">-</button>
+                        <b id="qty-val">1</b>
+                        <button class="qty-btn" onclick="updateQty(1)">+</button>
+                    </div>
+                </div>
+                
+                <div style="text-align: left; background: rgba(255, 255, 255, 0.08); padding: 16px; border-radius: 14px; border: 1px solid rgba(255, 0, 60, 0.35); box-shadow: 0 6px 18px rgba(0,0,0,0.18); margin-bottom: 15px;">
+                    <p style="font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; color: #fff;"><i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px; color: #ffdd57;"></i> Instructions</p>
+                    <ul style="font-size: 0.85rem; color: #ddd; line-height: 1.6; margin: 0; padding-left: 18px;">
+                        <li>Envoyez exactement <strong>2.500 XAF</strong> × quantité au numéro ci-dessus</li>
+                        <li>Entrez correctement toutes les informations</li>
+                        <li>Votre ticket sera validé manuellement par l'admin</li>
+                    </ul>
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/af/MTN_Logo.svg" width="50">
+                </div>
+                <button class="btn" style="background: #ffcc00; color: #000;" id="pay-btn" onclick="confirmPayment()">
+                    <span id="pay-text">Confirmer paiement</span>
+                    <div class="loader" id="loader"></div>
+                </button>
+            </div>
+
+            <div id="step-4" class="hidden">
+                <div class="ticket" style="position: relative; background: none; border-radius: 25px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin-top: 20px;">
+                    <img id="ticket-image" src="" style="width: 100%; height: auto; display: block;">
+                    
+                    <!-- QR Code ajusté pour correspondre aux proportions de l'image -->
+                    <div style="
+                        position: absolute;
+                        top: 58%;
+                        left: 81%;
+                        transform: translate(-50%, -50%);
+                        width: 28%;
+                        height: 38%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: transparent;
+                    ">
+                        <img id="qr-code-img"
+                             src=""
+                             style="
+                                width: 90%;
+                                height: 90%;
+                                object-fit: contain;
+                             ">
+                    </div>
+
+                    <!-- Status Badge Overlay -->
+                    <div style="position: absolute; top: 8%; right: 5%; background: rgba(0,0,0,0.7); color: white; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-align: center; font-size: 0.9rem;">
+                        <div id="status-badge"></div>
+                    </div>
+                </div>
+
+                <!-- Ticket Info Text -->
+                <div style="text-align: center; margin-top: 30px; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(5px); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="color: var(--primary); margin-bottom: 10px;" id="t-name-text">JEAN DUPONT</h3>
+                    <p id="t-code-text" style="font-size: 0.9rem; color: #ccc; margin-bottom: 10px;">Код: UP-XXXX</p>
+                    <p style="font-size: 0.85rem; color: #aaa;">
+                        Votre paiement est <strong id="payment-status-text">en attente de validation</strong> par l'administrateur.
+                        <br>Vous recevrez une confirmation dans les minutes qui suivent.
+                    </p>
+                </div>
+
+                <button class="btn" onclick="downloadTicketImage()" style="margin-top: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--primary);">
+                    <i class="fa-solid fa-download"></i> Télécharger le Pass
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let qty = 1;
+    const price = 2500;
+    let eventId = null; // Will be fetched from backend
+    let paymentMethod = 'MTN';
+
+    function setPaymentMethod(method) {
+        paymentMethod = method;
+
+        const mtnBtn = document.getElementById('method-mtn');
+        const airtelBtn = document.getElementById('method-airtel');
+        const infoBorder = document.getElementById('payment-info');
+        const title = document.getElementById('payment-info-title');
+        const numberEl = document.getElementById('payment-number');
+        const instruction = document.getElementById('payment-instruction');
+
+        if (method === 'MTN') {
+            mtnBtn.style.opacity = '1';
+            airtelBtn.style.opacity = '0.65';
+            infoBorder.style.borderColor = '#ffd600';
+            title.innerText = 'Informations de Paiement - MTN MoMo';
+            numberEl.innerText = '06 96 11 04 7';
+            instruction.innerText = 'Effectuez le paiement manuellement sur votre application MTN MoMo';
+        } else {
+            mtnBtn.style.opacity = '0.65';
+            airtelBtn.style.opacity = '1';
+            infoBorder.style.borderColor = '#ff3b3b';
+            title.innerText = 'Informations de Paiement - Airtel Money';
+            numberEl.innerText = '04 56 78 90 1';
+            instruction.innerText = 'Effectuez le paiement manuellement sur votre application Airtel Money';
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+        updateMenuText();
+        fetchEventId(); // Fetch the event ID when page loads
+        setPaymentMethod('MTN');
+    });
+
+    function fetchEventId() {
+        // Get the "Journée Atiéké" event from API
+        fetch('http://localhost:3000/events')
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch events');
+                return response.json();
+            })
+            .then(data => {
+                // Look for "Journée Atiéké" event
+                if (data.data && Array.isArray(data.data)) {
+                    const event = data.data.find(e => e.title === 'Journée Atiéké');
+                    if (event) {
+                        eventId = event.id;
+                        console.log('✓ Event ID fetched:', eventId);
+                        return;
+                    }
+                }
+                
+                // If event not found, create it
+                console.log('Event not found, creating it...');
+                createEvent();
+            })
+            .catch(error => {
+                console.error('Error fetching event:', error);
+                // Try to create the event as fallback
+                createEvent();
+            });
+    }
+
+    function createEvent() {
+        // Use current date/time for now since we're creating dynamically
+        const eventDate = new Date();
+        eventDate.setDate(eventDate.getDate() + 30); // 30 days from now
+        
+        // First create a system user that owns the event with unique email
+        const timestamp = Date.now();
+        const systemUserData = {
+            name: 'System Admin',
+            email: `system-${timestamp}@journee-atieke.com`, // Unique email with timestamp
+            phone: '+237600000000',
+            school: 'Universeach'
+        };
+
+        console.log('Creating system user first with email:', systemUserData.email);
+
+        fetch('http://localhost:3000/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(systemUserData)
+        })
+        .then(response => {
+            console.log('System user response status:', response.status);
+            if (!response.ok) {
+                return response.json().then(data => {
+                    console.error('Backend error creating user:', data);
+                    throw new Error(data.message || 'Could not create system user');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            const systemUserId = data.data.id;
+            console.log('✓ System user created:', systemUserId);
+            
+            // Now create the event with the system user ID
+            return createEventWithUser(systemUserId);
+        })
+        .catch(error => {
+            console.error('Failed to create system user:', error);
+            alert('Erreur: Impossible de créer l\'événement système.\n\nDétail: ' + error.message + '\n\nVeuillez rafraîchir la page.');
+        });
+    }
+
+    function createEventWithUser(createdByUserId) {
+        const eventDate = new Date();
+        eventDate.setDate(eventDate.getDate() + 30);
+        const eventDateIso = eventDate.toISOString();
+        
+        const eventData = {
+            title: 'Journée Atiéké',
+            description: 'Journée Atiéké – UniverSearch Party. Une journée unique dédiée aux étudiants, pensée pour allier détente, rencontres et bonne ambiance dans un cadre convivial.',
+            price: 250000, // 2500 XAF in cents
+            date: eventDateIso,
+            location: 'Cote Sauvage',
+            createdBy: createdByUserId // Use the actual user ID
+        };
+
+        console.log('Creating event with user:', eventData);
+
+        fetch('http://localhost:3000/events', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(eventData)
+        })
+        .then(response => {
+            console.log('Create event response status:', response.status);
+            if (!response.ok) {
+                return response.json().then(data => {
+                    console.error('Backend error response:', data);
+                    throw new Error(data.message || 'Failed to create event');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            eventId = data.data.id;
+            console.log('✓ Event created:', eventId);
+        })
+        .catch(error => {
+            console.error('Error creating event:', error);
+            alert('Erreur: Impossible de charger l\'événement.\n\nDétail: ' + error.message);
+        });
+    }
+
+    // Countdown Timer
+    function updateCountdown() {
+        const startDate = new Date('2026-03-19T00:00:00').getTime();
+        const eventDate = new Date('2026-04-19T00:00:00').getTime();
+        const now = new Date().getTime();
+        const distance = eventDate - now;
+        const totalDuration = eventDate - startDate;
+        const elapsed = now - startDate;
+        const progressPercent = Math.max(0, Math.min(100, ((totalDuration - distance) / totalDuration) * 100));
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById('days').innerText = days;
+        document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+        document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+        document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        
+        document.getElementById('progress-bar').style.width = progressPercent + '%';
+        document.getElementById('progress-percent').innerText = Math.round(progressPercent);
+    }
+
+    // Toggle Menu
+    function toggleMenu() {
+        document.getElementById('side-menu').classList.toggle('active');
+        updateMenuText();
+    }
+
+    function updateMenuText() {
+        const token = localStorage.getItem('universeach_token');
+        const text = document.getElementById('menu-auth-text');
+        text.innerText = token ? "Déconnexion" : "Connexion";
+    }
+
+    function handleMenuAuth() {
+        if (localStorage.getItem('universeach_token')) {
+            localStorage.clear();
+            location.reload();
+        } else {
+            checkAuthFlow();
+            toggleMenu();
+        }
+    }
+
+    // Auth Flow
+    function checkAuthFlow() {
+        const token = localStorage.getItem('universeach_token');
+        document.getElementById('step-1').classList.add('hidden');
+        if (token) {
+            document.getElementById('step-3').classList.remove('hidden');
+        } else {
+            document.getElementById('step-2').classList.remove('hidden');
+        }
+    }
+
+    // Toggle school field visibility based on student status
+    function toggleSchoolField() {
+        const isStudent = document.getElementById('is-student').value;
+        const schoolField = document.getElementById('school');
+        
+        if (isStudent === 'yes') {
+            schoolField.classList.remove('hidden');
+            schoolField.required = true;
+        } else {
+            schoolField.classList.add('hidden');
+            schoolField.required = false;
+            schoolField.value = '';
+        }
+    }
+
+    function finishRegistration() {
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+        const isStudent = document.getElementById('is-student').value;
+        const school = document.getElementById('school').value;
+
+        if(!name || !email || !phone || !isStudent) {
+            return alert("Remplis tous les champs !");
+        }
+
+        if (isStudent === 'yes' && !school) {
+            return alert("Veuillez entrer le nom de votre école !");
+        }
+
+        // Get the button and disable it
+        const btn = event.target;
+        btn.disabled = true;
+        const originalText = btn.innerText;
+        btn.innerText = 'Enregistrement...';
+        
+        // Call API to register user
+        fetch('http://localhost:3000/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                phone: phone,
+                school: school || (isStudent === 'no' ? 'Non applicable' : '')
+            })
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response:', response);
+            
+            if (!response.ok) {
+                return response.text().then(text => {
+                    console.error('Error response:', text);
+                    try {
+                        const err = JSON.parse(text);
+                        throw new Error(err.message || 'Registration failed');
+                    } catch (e) {
+                        throw new Error('Server error: ' + text);
+                    }
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Registration success:', data);
+            
+            // Store user data and token
+            localStorage.setItem('universeach_user', JSON.stringify(data.data));
+            localStorage.setItem('universeach_token', 'active_' + Date.now());
+            localStorage.setItem('universeach_userId', data.data.id);
+            
+            // Move to payment step
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.remove('hidden');
+        })
+        .catch(error => {
+            console.error('Registration error:', error);
+            alert('Erreur d\'enregistrement: ' + error.message);
+            btn.disabled = false;
+            btn.innerText = originalText;
+        });
+    }
+
+    // Payment
+    function updateQty(val) {
+        qty = Math.max(1, qty + val);
+        const qtyEl = document.getElementById('qty-val');
+        const amountDisplay = document.getElementById('amount-display');
+
+        if (qtyEl) {
+            qtyEl.innerText = qty;
+        }
+
+        if (amountDisplay) {
+            const totalAmount = qty * price;
+            amountDisplay.innerText = totalAmount.toLocaleString() + ' XAF';
+        }
+    }
+
+    function formatPhoneNumber(event) {
+        let input = event.target.value;
+        // Nettoyer et normaliser
+        const normalized = normalizePhone(input);
+        if (normalized) {
+            event.target.value = normalized;
+        }
+    }
+
+    function normalizePhone(phone) {
+        const trimmed = phone.trim();
+
+        // Accepter directement les numéros Congo commençant par +242
+        if (/^\+242\d{9}$/.test(trimmed)) {
+            return trimmed;
+        }
+
+        // Pour les autres formats, normaliser vers +242
+        let digits = trimmed.replace(/\D/g, '');
+
+        if (digits.length === 9 && digits.startsWith('6')) {
+            return '+242' + digits;
+        }
+
+        if (digits.length === 10 && digits.startsWith('06')) {
+            return '+242' + digits.slice(1);
+        }
+
+        return null;
+    }
+
+    function confirmPayment() {
+        if (!eventId) {
+            alert('Erreur: ID de l\'événement non disponible. Veuillez rafraîchir la page.');
+            return;
+        }
+
+        const user = JSON.parse(localStorage.getItem('universeach_user'));
+        const userId = localStorage.getItem('universeach_userId');
+        const rawPhoneNumber = document.getElementById('momo-phone').value;
+        const clientName = document.getElementById('client-name').value.trim();
+
+        // Validation
+        if (!clientName) {
+            alert('Veuillez entrer votre nom complet');
+            return;
+        }
+
+        // Nettoyer et normaliser le numéro
+        const normalizedPhone = normalizePhone(rawPhoneNumber);
+
+        if (!normalizedPhone) {
+            alert('Numéro invalide. Format attendu: +242XXXXXXXXX');
+            return;
+        }
+
+        const btn = document.getElementById('pay-btn');
+        btn.disabled = true;
+        document.getElementById('pay-text').style.display = 'none';
+        document.getElementById('loader').style.display = 'block';
+
+        // Call backend to save payment with PENDING status
+        fetch('http://localhost:3000/payments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: clientName,
+                phone: normalizedPhone,
+                quantity: qty,
+                amount: qty * price,
+                paymentMethod: paymentMethod,
+                userId: userId,
+                eventId: eventId,
+            })
+        })
+        .then(response => {
+            console.log('Payment save response:', response);
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error('Échec de l\'enregistrement du paiement: ' + text);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Payment saved:', data);
+
+            const payment = data.data;
+            const paymentId = payment.id;
+            const momoReference = payment.momoReference;
+            const qrCode = payment.qrCode; // QR code from backend
+
+            // Afficher ticket immédiatement avec status PENDING
+            showTicket(paymentId, 'PENDING', momoReference, clientName, qrCode);
+
+            // Lancer la surveillance auto du statut
+            watchPayment(paymentId);
+        })
+        .catch(error => {
+            console.error('Payment save error:', error);
+            alert('Erreur lors de l\'enregistrement: ' + error.message);
+            btn.disabled = false;
+            document.getElementById('pay-text').style.display = 'block';
+            document.getElementById('loader').style.display = 'none';
+        });
+    }
+
+    function pollPaymentStatus(momoReference, attempts) {
+        const maxAttempts = 40; // 2 minutes with 3 second interval
+        const pollInterval = 3000; // 3 seconds
+
+        if (attempts >= maxAttempts) {
+            alert('Délai de paiement dépassé. Veuillez vérifier votre solde et réessayer.');
+            const btn = document.getElementById('pay-btn');
+            btn.disabled = false;
+            document.getElementById('pay-text').style.display = 'block';
+            document.getElementById('loader').style.display = 'none';
+            return;
+        }
+
+        fetch(`http://localhost:3000/payments/status/${momoReference}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to check payment status');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Payment status:', data);
+            
+            if (data.data && data.data.status === 'SUCCESSFUL') {
+                console.log('Payment successful!');
+                showTicket();
+            } else if (data.data && data.data.status === 'FAILED') {
+                alert('Le paiement a échoué. Veuillez réessayer.');
+                const btn = document.getElementById('pay-btn');
+                btn.disabled = false;
+                document.getElementById('pay-text').style.display = 'block';
+                document.getElementById('loader').style.display = 'none';
+            } else {
+                // Still pending, continue polling
+                setTimeout(() => {
+                    pollPaymentStatus(momoReference, attempts + 1);
+                }, pollInterval);
+            }
+        })
+        .catch(error => {
+            console.error('Status check error:', error);
+            // Continue polling despite error
+            setTimeout(() => {
+                pollPaymentStatus(momoReference, attempts + 1);
+            }, pollInterval);
+        });
+    }
+
+    // Ticket Generation
+    function showTicket(paymentId, status = 'PENDING', momoReference = '', clientName = '', qrCodeImage = '') {
+        document.getElementById('step-3').classList.add('hidden');
+        document.getElementById('step-4').classList.remove('hidden');
+
+        const user = JSON.parse(localStorage.getItem('universeach_user'));
+
+        // Use client name if provided, otherwise use registered user name
+        const displayName = clientName || user.name;
+        document.getElementById('t-name-text').innerText = displayName.toUpperCase();
+
+        // Set ticket image
+        document.getElementById('ticket-image').src = 'Ticket Universearch.png';
+
+        // Display QR code from backend
+        if (qrCodeImage) {
+            document.getElementById('qr-code-img').src = qrCodeImage;
+        }
+
+        // Set status
+        const statusBadge = document.getElementById('status-badge');
+        const statusText = document.getElementById('payment-status-text');
+        
+        if (status === 'SUCCESSFUL' || status === 'SUCCESS') {
+            statusBadge.innerText = '';
+            statusBadge.style.background = 'rgba(46, 204, 113, 0.8)';
+            statusText.innerText = 'validé et confirmé';
+            document.getElementById('t-code-text').innerText = `Code: ${momoReference}`;
+        } else {
+            statusBadge.innerText = '';
+            statusBadge.style.background = 'rgba(255, 193, 7, 0.8)';
+            statusText.innerText = 'en attente de validation';
+            document.getElementById('t-code-text').innerText = `Référence: ${momoReference}`;
+        }
+    }
+
+    function watchPayment(paymentId) {
+        const interval = setInterval(() => {
+            fetch(`http://localhost:3000/payments/${paymentId}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to fetch payment');
+                return res.json();
+            })
+            .then(data => {
+                if (data.data) {
+                    const payment = data.data;
+                    if (payment.status === 'SUCCESSFUL') {
+                        showTicket(paymentId, 'SUCCESSFUL', payment.momoReference, payment.customerName, payment.qrCode);
+                        clearInterval(interval);
+                    } else if (payment.status === 'FAILED') {
+                        showTicket(paymentId, 'FAILED', payment.momoReference, payment.customerName, payment.qrCode);
+                        clearInterval(interval);
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('watchPayment error:', err);
+            });
+        }, 5000);
+    }
+    
+    // Initialiser le menu au chargement
+    updateMenuText();
+
+    // Toggle Description
+    function toggleDescription() {
+        const descSection = document.getElementById('desc-section');
+        const btn = event.target;
+        descSection.classList.toggle('expanded');
+        btn.innerText = descSection.classList.contains('expanded') ? 'Voir moins' : 'Voir plus';
+    }
+
+    // Download Ticket as Image
+    function downloadTicketImage() {
+        const ticketElement = document.querySelector('.ticket');
+        const clientName = document.getElementById('t-name-text').innerText;
+        
+        html2canvas(ticketElement, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            logging: false
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.download = `Ticket_Universeach_${clientName.replace(/\s+/g, '_')}_${Date.now()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }).catch(err => {
+            console.error('Erreur lors du téléchargement:', err);
+            alert('Échec du téléchargement du ticket');
+        });
+    }
+</script>
+
+</body>
+</html>

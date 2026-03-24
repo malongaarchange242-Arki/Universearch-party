@@ -26,6 +26,7 @@ export interface PaymentResponse {
   operator?: string; // MTN or AIRTEL
   quantity: number;
   transactionId: string;
+  qrCode?: string; // QR code as base64 data URL
   createdAt: Date;
   updatedAt: Date;
 }

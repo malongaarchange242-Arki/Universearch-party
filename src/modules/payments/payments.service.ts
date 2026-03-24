@@ -3,7 +3,7 @@ import { CreatePaymentDto, PaymentResponse } from './payments.model';
 import { TicketsService } from '../tickets/tickets.service';
 import { MoMoPayment } from '../../integrations/momo/momo.payment';
 import { MoMoStatus } from '../../integrations/momo/momo.status';
-import { generateMoMoReference } from '../../shared/utils';
+import { generateMoMoReference, generateQRCode, decryptQRData } from '../../shared/utils';
 import { EventsService } from '../events/events.service';
 import { AuthService } from '../auth/auth.service';
 import { config } from '../../config/env';
@@ -88,6 +88,10 @@ export class PaymentsService {
       transactionId: transactionId,
     });
 
+    // Generate QR code with format: UP|momo_reference|nom|status|QTY:X
+    const qrCodeData = `UP|${momoReference}|${data.name}|PENDING|QTY:${data.quantity}`;
+    const qrCode = await generateQRCode(qrCodeData);
+
     console.log('✅ Payment saved with PENDING status:', { 
       momoReference, 
       customerName: data.name,
@@ -95,7 +99,11 @@ export class PaymentsService {
       status: 'PENDING'
     });
 
-    return payment;
+    // Return payment with QR code
+    return {
+      ...payment,
+      qrCode
+    };
   }
 
   /**
@@ -164,7 +172,14 @@ export class PaymentsService {
       throw new Error('Payment not found');
     }
 
-    return payment;
+    // Generate QR code with current status
+    const qrCodeData = `UP|${payment.momoReference}|${payment.customerName}|${payment.status}|QTY:${payment.quantity}`;
+    const qrCode = await generateQRCode(qrCodeData);
+
+    return {
+      ...payment,
+      qrCode
+    };
   }
 
   /**
@@ -179,14 +194,31 @@ export class PaymentsService {
    */
   async getAllPayments(): Promise<PaymentResponse[]> {
     const result = await this.repository.getAll(0, 1000);
-    return result.data;
+    
+    // Generate QR codes for all payments
+    const paymentsWithQR = await Promise.all(
+      result.data.map(async (payment) => {
+        const qrCodeData = `UP|${payment.momoReference}|${payment.customerName}|${payment.status}|QTY:${payment.quantity}`;
+        const qrCode = await generateQRCode(qrCodeData);
+        return {
+          ...payment,
+          qrCode
+        };
+      })
+    );
+    
+    return paymentsWithQR;
   }
 
   /**
    * Validate payment (admin)
    */
   async validatePayment(id: string): Promise<PaymentResponse> {
-    const payment = await this.getPaymentById(id);
+    const payment = await this.repository.findById(id);
+    
+    if (!payment) {
+      throw new Error('Payment not found');
+    }
     
     if (payment.status === 'SUCCESSFUL') {
       throw new Error('Payment already validated');
@@ -206,19 +238,97 @@ export class PaymentsService {
       console.error('Warning: Could not create ticket:', ticketError);
     }
 
-    return updatedPayment;
+    // Generate QR code with updated status
+    const qrCodeData = `UP|${updatedPayment.momoReference}|${updatedPayment.customerName}|SUCCESSFUL|QTY:${updatedPayment.quantity}`;
+    const qrCode = await generateQRCode(qrCodeData);
+
+    return {
+      ...updatedPayment,
+      qrCode
+    };
+  }
+
+  /**
+   * Decrypt and verify QR code (admin scanner)
+   * Returns payment details from encrypted QR data
+   */
+  async decryptAndVerifyQR(encryptedQRData: string): Promise<any> {
+    try {
+      // Decrypt the QR code data
+      const decryptedData = decryptQRData(encryptedQRData);
+      
+      // Parse the decrypted data: UP|momoReference|customerName|status|QTY:X
+      const parts = decryptedData.split('|');
+      if (parts.length < 5 || parts[0] !== 'UP') {
+        throw new Error('Invalid QR code format');
+      }
+
+      const [, momoReference, customerName, status, qtyPart] = parts;
+      const quantity = parseInt(qtyPart.split(':')[1], 10);
+
+      // Find payment in database
+      const payment = await this.repository.findByMoMoReference(momoReference);
+      
+      if (!payment) {
+        throw new Error(`Payment not found for reference: ${momoReference}`);
+      }
+
+      // Verify the data matches
+      if (payment.customerName !== customerName) {
+        throw new Error('Customer name mismatch - QR may be forged');
+      }
+
+      if (payment.quantity !== quantity) {
+        throw new Error('Quantity mismatch - QR may be forged');
+      }
+
+      console.log('✅ QR code verified successfully:', { momoReference, customerName, status });
+
+      return {
+        success: true,
+        payment: {
+          id: payment.id,
+          momoReference: payment.momoReference,
+          customerName: payment.customerName,
+          amount: payment.amount / 100, // Convert from cents
+          quantity: payment.quantity,
+          status: payment.status,
+          operator: payment.operator,
+          phone: payment.phoneNumber,
+          createdAt: payment.createdAt,
+          qrStatus: status // Status from QR (encrypted)
+        },
+        message: `Ticket valide - ${payment.customerName} (${status})`
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to decrypt QR code';
+      throw new Error(errorMessage);
+    }
   }
 
   /**
    * Reject payment (admin)
    */
   async rejectPayment(id: string): Promise<PaymentResponse> {
-    const payment = await this.getPaymentById(id);
+    const payment = await this.repository.findById(id);
+    
+    if (!payment) {
+      throw new Error('Payment not found');
+    }
     
     if (payment.status === 'FAILED') {
       throw new Error('Payment already rejected');
     }
 
-    return await this.repository.updateStatus(id, 'FAILED');
+    const updatedPayment = await this.repository.updateStatus(id, 'FAILED');
+
+    // Generate QR code with updated status
+    const qrCodeData = `UP|${updatedPayment.momoReference}|${updatedPayment.customerName}|FAILED|QTY:${updatedPayment.quantity}`;
+    const qrCode = await generateQRCode(qrCodeData);
+
+    return {
+      ...updatedPayment,
+      qrCode
+    };
   }
 }
