@@ -170,7 +170,30 @@
                 processScan(decodedText);
                 html5QrCode.pause(); // Pause pour afficher le résultat
             }
-        ).catch(err => alert("Erreur Caméra : " + err));
+        ).catch(err => {
+            console.error("Camera error:", err);
+            document.getElementById('start-btn').classList.remove('hidden');
+            
+            // Provide specific error messages
+            let errorMsg = "Erreur Caméra : ";
+            
+            if (err.name === 'NotAllowedError' || err.message.includes('permission')) {
+                errorMsg += "Permission d'accès à la caméra refusée.\n\n" +
+                    "Solutions :\n" +
+                    "1. Acceptez la permission d'accès à la caméra\n" +
+                    "2. Vérifiez les paramètres de confidentialité du navigateur\n" +
+                    "3. Assurez-vous d'utiliser HTTPS (pas HTTP)\n" +
+                    "4. Redémarrez le navigateur et réessayez";
+            } else if (err.name === 'NotFoundError') {
+                errorMsg += "Aucune caméra détectée sur cet appareil.";
+            } else if (err.name === 'NotReadableError') {
+                errorMsg += "La caméra est déjà utilisée par une autre application.\n\nFermez les autres apps utilisant la caméra et réessayez.";
+            } else if (err.name === 'SecurityError') {
+                errorMsg += "Accès à la caméra refusé pour des raisons de sécurité.\n\nAssurez-vous d'utiliser HTTPS.";
+            }
+            
+            alert(errorMsg);
+        });
     }
 
     function processScan(data) {

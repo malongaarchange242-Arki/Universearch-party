@@ -146,6 +146,7 @@
         <div class="menu-item" id="menu-auth-btn" onclick="handleMenuAuth()">
             <i class="fa-solid fa-user"></i> <span id="menu-auth-text">Connexion</span>
         </div>
+        <div class="menu-item" onclick="window.location.href='History.html'"><i class="fa-solid fa-history"></i> Historique</div>
         <div class="menu-item" onclick="window.location.href='Help.html'"><i class="fa-solid fa-circle-info"></i> Aide</div>
         <div class="menu-item" onclick="window.location.href='About.html'"><i class="fa-solid fa-circle-question"></i> À propos</div>
     </div>
@@ -205,7 +206,7 @@
             <ul>
                 <li><i class="fa-solid fa-id-card" style="color: var(--primary); margin-right: 6px;"></i>Carte brise-glace</li>
                 <li><i class="fa-solid fa-masks-theater" style="color: var(--primary); margin-right: 6px;"></i>Devine qui je suis</li>
-                <li><i class="fa-solid fa-person-running" style="color: var(--primary); margin-right: 6px;"></i>Course de relais</li>
+                <li><i class="fa-solid fa-person-running" style="color: var(--primary); margin-right: 6px;"></i>Sport</li>
                 <li><i class="fa-solid fa-utensils" style="color: var(--primary); margin-right: 6px;"></i>Concours du plus grand mangeur d'attiéké</li>
                 <li><i class="fa-solid fa-wine-glass" style="color: var(--primary); margin-right: 6px;"></i>Concours du plus grand buveur</li>
                 <li><i class="fa-solid fa-microphone" style="color: var(--primary); margin-right: 6px;"></i>Battle de rap improvisé</li>
@@ -265,7 +266,10 @@
                 </div>
                 
                 <!-- User Input Section -->
-                <input type="text" id="client-name" class="form-control" placeholder="Votre nom complet" required style="margin-bottom: 15px;">
+                <div id="names-input-section">
+                    <input type="text" id="client-name" class="form-control" placeholder="Votre nom complet (Ticket 1)" required style="margin-bottom: 15px;">
+                    <div id="additional-names"></div>
+                </div>
                 
                 <input type="tel" id="momo-phone" class="form-control" placeholder="Numéro utilisé pour payer (ex: +242069611047)" required style="margin-bottom: 15px;" oninput="formatPhoneNumber(event)">
                 
@@ -297,40 +301,12 @@
             </div>
 
             <div id="step-4" class="hidden">
-                <div class="ticket" style="position: relative; background: none; border-radius: 25px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin-top: 20px;">
-                    <img id="ticket-image" src="" style="width: 100%; height: auto; display: block;">
-                    
-                    <!-- QR Code ajusté pour correspondre aux proportions de l'image -->
-                    <div style="
-                        position: absolute;
-                        top: 58%;
-                        left: 81%;
-                        transform: translate(-50%, -50%);
-                        width: 28%;
-                        height: 38%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        background: transparent;
-                    ">
-                        <img id="qr-code-img"
-                             src=""
-                             style="
-                                width: 90%;
-                                height: 90%;
-                                object-fit: contain;
-                             ">
-                    </div>
-
-                    <!-- Status Badge Overlay -->
-                    <div style="position: absolute; top: 8%; right: 5%; background: rgba(0,0,0,0.7); color: white; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-align: center; font-size: 0.9rem;">
-                        <div id="status-badge"></div>
-                    </div>
-                </div>
+                <div id="tickets-container"></div>
 
                 <!-- Ticket Info Text -->
                 <div style="text-align: center; margin-top: 30px; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(5px); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
                     <h3 style="color: var(--primary); margin-bottom: 10px;" id="t-name-text">JEAN DUPONT</h3>
+                    <p id="t-qty-text" style="font-size: 0.9rem; color: #ccc; margin-bottom: 10px;"></p>
                     <p id="t-code-text" style="font-size: 0.9rem; color: #ccc; margin-bottom: 10px;">Код: UP-XXXX</p>
                     <p style="font-size: 0.85rem; color: #aaa;">
                         Votre paiement est <strong id="payment-status-text">en attente de validation</strong> par l'administrateur.
@@ -339,7 +315,7 @@
                 </div>
 
                 <button class="btn" onclick="downloadTicketImage()" style="margin-top: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--primary);">
-                    <i class="fa-solid fa-download"></i> Télécharger le Pass
+                    <i class="fa-solid fa-download"></i> Télécharger les Pass
                 </button>
             </div>
         </div>
@@ -678,6 +654,31 @@
             const totalAmount = qty * price;
             amountDisplay.innerText = totalAmount.toLocaleString() + ' XAF';
         }
+
+        // Update name input fields based on quantity
+        updateNameInputs();
+    }
+
+    function updateNameInputs() {
+        const additionalNamesDiv = document.getElementById('additional-names');
+        const mainNameInput = document.getElementById('client-name');
+        
+        // Clear previous additional inputs
+        additionalNamesDiv.innerHTML = '';
+
+        // Update main input label
+        if (qty > 1) {
+            mainNameInput.placeholder = 'Nom complet (Ticket 1)';
+        } else {
+            mainNameInput.placeholder = 'Votre nom complet';
+        }
+
+        // Add inputs for additional tickets
+        for (let i = 2; i <= qty; i++) {
+            const inputDiv = document.createElement('div');
+            inputDiv.innerHTML = `<input type="text" class="form-control ticket-name" placeholder="Nom complet (Ticket ${i})" required style="margin-bottom: 15px;">`;
+            additionalNamesDiv.appendChild(inputDiv.firstElementChild);
+        }
     }
 
     function formatPhoneNumber(event) {
@@ -728,6 +729,20 @@
             return;
         }
 
+        // Collect all ticket names
+        const ticketNames = [clientName];
+        if (qty > 1) {
+            const additionalInputs = document.querySelectorAll('.ticket-name');
+            for (let input of additionalInputs) {
+                const name = input.value.trim();
+                if (!name) {
+                    alert('Veuillez remplir tous les noms des tickets');
+                    return;
+                }
+                ticketNames.push(name);
+            }
+        }
+
         // Nettoyer et normaliser le numéro
         const normalizedPhone = normalizePhone(rawPhoneNumber);
 
@@ -774,11 +789,16 @@
             const momoReference = payment.momoReference;
             const qrCode = payment.qrCode; // QR code from backend
 
-            // Afficher ticket immédiatement avec status PENDING
-            showTicket(paymentId, 'PENDING', momoReference, clientName, qrCode);
+            // Save each ticket to history
+            for (let i = 0; i < ticketNames.length; i++) {
+                saveTicketToHistory(ticketNames[i], momoReference, 1, 'pending');
+            }
+
+            // Afficher tickets immédiatement avec status PENDING et noms différents
+            showTicket(paymentId, 'PENDING', momoReference, ticketNames, qrCode);
 
             // Lancer la surveillance auto du statut
-            watchPayment(paymentId);
+            watchPayment(paymentId, ticketNames);
         })
         .catch(error => {
             console.error('Payment save error:', error);
@@ -843,42 +863,109 @@
     }
 
     // Ticket Generation
-    function showTicket(paymentId, status = 'PENDING', momoReference = '', clientName = '', qrCodeImage = '') {
-        document.getElementById('step-3').classList.add('hidden');
-        document.getElementById('step-4').classList.remove('hidden');
+    function showTicket(paymentId, status = 'PENDING', momoReference = '', ticketNames = [], qrCodeImage = '') {
+        try {
+            console.log('showTicket called with:', {paymentId, status, momoReference, ticketNames, quantity: qty});
+            
+            document.getElementById('step-3').classList.add('hidden');
+            document.getElementById('step-4').classList.remove('hidden');
 
-        const user = JSON.parse(localStorage.getItem('universeach_user'));
+            const user = JSON.parse(localStorage.getItem('universeach_user'));
 
-        // Use client name if provided, otherwise use registered user name
-        const displayName = clientName || user.name;
-        document.getElementById('t-name-text').innerText = displayName.toUpperCase();
+            // Handle both single name string and array of names for backwards compatibility
+            let namesArray = Array.isArray(ticketNames) ? ticketNames : [ticketNames];
+            if (namesArray.length === 0 || namesArray[0] === '') {
+                namesArray = [user.name];
+            }
 
-        // Set ticket image
-        document.getElementById('ticket-image').src = 'Ticket Universearch.png';
+            // Use first name for main display
+            const displayName = namesArray[0] || user.name;
+            document.getElementById('t-name-text').innerText = displayName.toUpperCase();
+            document.getElementById('t-qty-text').innerText = qty > 1 ? `${qty} Tickets` : '1 Ticket';
 
-        // Display QR code from backend
-        if (qrCodeImage) {
-            document.getElementById('qr-code-img').src = qrCodeImage;
-        }
+            // Generate N tickets based on quantity
+            const ticketsContainer = document.getElementById('tickets-container');
+            ticketsContainer.innerHTML = '';
 
-        // Set status
-        const statusBadge = document.getElementById('status-badge');
-        const statusText = document.getElementById('payment-status-text');
-        
-        if (status === 'SUCCESSFUL' || status === 'SUCCESS') {
-            statusBadge.innerText = '';
-            statusBadge.style.background = 'rgba(46, 204, 113, 0.8)';
-            statusText.innerText = 'validé et confirmé';
-            document.getElementById('t-code-text').innerText = `Code: ${momoReference}`;
-        } else {
-            statusBadge.innerText = '';
-            statusBadge.style.background = 'rgba(255, 193, 7, 0.8)';
-            statusText.innerText = 'en attente de validation';
-            document.getElementById('t-code-text').innerText = `Référence: ${momoReference}`;
+            for (let i = 1; i <= qty; i++) {
+                const ticketDiv = document.createElement('div');
+                const ticketName = namesArray[i - 1] || displayName;
+                
+                ticketDiv.style.marginTop = i > 1 ? '30px' : '0';
+                ticketDiv.style.paddingBottom = i < qty ? '20px' : '0';
+                ticketDiv.style.borderBottom = i < qty ? '1px solid rgba(255,255,255,0.1)' : 'none';
+                
+                ticketDiv.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 15px; color: #FFB800; font-size: 0.9rem; font-weight: 700;">
+                        Ticket ${i} / ${qty} — ${ticketName.toUpperCase()}
+                    </div>
+                    <div class="ticket" style="position: relative; background: none; border-radius: 25px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); margin-top: 0;">
+                        <img class="ticket-image" src="Ticket Universearch.png" style="width: 100%; height: auto; display: block;">
+                        
+                        <!-- QR Code ajusté pour correspondre aux proportions de l'image -->
+                        <div style="
+                            position: absolute;
+                            top: 58%;
+                            left: 81%;
+                            transform: translate(-50%, -50%);
+                            width: 28%;
+                            height: 38%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: transparent;
+                        ">
+                            <img class="qr-code-img"
+                                 src="${qrCodeImage}"
+                                 style="
+                                    width: 90%;
+                                    height: 90%;
+                                    object-fit: contain;
+                                 ">
+                        </div>
+
+                        <!-- Status Badge Overlay -->
+                        <div style="position: absolute; top: 8%; right: 5%; background: rgba(0,0,0,0.7); color: white; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-align: center; font-size: 0.9rem;">
+                            <div class="status-badge"></div>
+                        </div>
+                    </div>
+                `;
+                
+                ticketsContainer.appendChild(ticketDiv);
+            }
+
+            // Set status on all badges
+            const statusBadges = document.querySelectorAll('.status-badge');
+            const statusText = document.getElementById('payment-status-text');
+            
+            if (status === 'SUCCESSFUL' || status === 'SUCCESS') {
+                statusBadges.forEach(badge => {
+                    badge.innerText = '';
+                    badge.style.background = 'rgba(46, 204, 113, 0.8)';
+                });
+                statusText.innerText = 'validé et confirmé';
+                document.getElementById('t-code-text').innerText = `Code: ${momoReference}`;
+            } else {
+                statusBadges.forEach(badge => {
+                    badge.innerText = '';
+                    badge.style.background = 'rgba(255, 193, 7, 0.8)';
+                });
+                statusText.innerText = 'en attente de validation';
+                document.getElementById('t-code-text').innerText = `Référence: ${momoReference}`;
+            }
+
+            // Scroll to ticket
+            setTimeout(() => {
+                ticketsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+
+        } catch (error) {
+            console.error('Error in showTicket:', error);
+            alert('Erreur affichage ticket: ' + error.message);
         }
     }
 
-    function watchPayment(paymentId) {
+    function watchPayment(paymentId, ticketNames = []) {
         const interval = setInterval(() => {
             fetch(`https://universearch-party.onrender.com/payments/${paymentId}`)
             .then(res => {
@@ -889,10 +976,10 @@
                 if (data.data) {
                     const payment = data.data;
                     if (payment.status === 'SUCCESSFUL') {
-                        showTicket(paymentId, 'SUCCESSFUL', payment.momoReference, payment.customerName, payment.qrCode);
+                        showTicket(paymentId, 'SUCCESSFUL', payment.momoReference, ticketNames, payment.qrCode);
                         clearInterval(interval);
                     } else if (payment.status === 'FAILED') {
-                        showTicket(paymentId, 'FAILED', payment.momoReference, payment.customerName, payment.qrCode);
+                        showTicket(paymentId, 'FAILED', payment.momoReference, ticketNames, payment.qrCode);
                         clearInterval(interval);
                     }
                 }
@@ -902,9 +989,6 @@
             });
         }, 5000);
     }
-    
-    // Initialiser le menu au chargement
-    updateMenuText();
 
     // Toggle Description
     function toggleDescription() {
@@ -916,25 +1000,85 @@
 
     // Download Ticket as Image
     function downloadTicketImage() {
-        const ticketElement = document.querySelector('.ticket');
-        const clientName = document.getElementById('t-name-text').innerText;
+        const tickets = document.querySelectorAll('.ticket');
+        const mainClientName = document.getElementById('t-name-text').innerText;
         
-        html2canvas(ticketElement, {
-            scale: 2,
-            backgroundColor: '#ffffff',
-            useCORS: true,
-            logging: false
-        }).then(canvas => {
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/jpeg', 0.95);
-            link.download = `Ticket_Universeach_${clientName.replace(/\s+/g, '_')}_${Date.now()}.jpg`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }).catch(err => {
-            console.error('Erreur lors du téléchargement:', err);
-            alert('Échec du téléchargement du ticket');
+        if (tickets.length === 0) {
+            alert('Aucun ticket à télécharger');
+            return;
+        }
+
+        // Download each ticket individually
+        let downloadCount = 0;
+        tickets.forEach((ticket, index) => {
+            html2canvas(ticket, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: false
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                
+                // Get ticket-specific name from the header
+                const ticketHeader = ticket.parentElement.querySelector('div');
+                let ticketName = mainClientName;
+                if (ticketHeader && ticketHeader.innerText) {
+                    const headerText = ticketHeader.innerText;
+                    const nameMatch = headerText.match(/— (.+?)$/);
+                    if (nameMatch) {
+                        ticketName = nameMatch[1].trim();
+                    }
+                }
+                
+                const ticketNum = tickets.length > 1 ? `_Ticket${index + 1}` : '';
+                link.download = `Universeach_${ticketName.replace(/\s+/g, '_')}${ticketNum}_${Date.now()}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                downloadCount++;
+                if (downloadCount === tickets.length && tickets.length > 1) {
+                    alert(`✅ ${tickets.length} tickets téléchargés avec succès!`);
+                }
+            }).catch(err => {
+                console.error('Erreur lors du téléchargement ticket', index + 1, ':', err);
+                alert(`Échec du téléchargement du ticket ${index + 1}`);
+            });
         });
+    }
+
+    // Save ticket to history
+    function saveTicketToHistory(name, code, qty, status = 'pending') {
+        const ticket = {
+            name: name,
+            code: code,
+            qty: qty,
+            status: status,
+            date: new Date().toISOString(),
+            school: (() => {
+                try {
+                    const user = JSON.parse(localStorage.getItem('universeach_user'));
+                    return user ? user.school : null;
+                } catch (e) {
+                    return null;
+                }
+            })()
+        };
+
+        let userTickets = [];
+        try {
+            const saved = localStorage.getItem('user_tickets');
+            if (saved) {
+                userTickets = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.error('Error parsing user_tickets:', e);
+        }
+
+        userTickets.unshift(ticket);
+        localStorage.setItem('user_tickets', JSON.stringify(userTickets));
+        console.log('Ticket saved to history:', ticket);
     }
 </script>
 
