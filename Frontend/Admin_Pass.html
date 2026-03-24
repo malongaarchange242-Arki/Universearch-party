@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universeach - Admin Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    
+    <style>
+        :root {
+            --primary: #FFB800;
+            --dark-teal: #062c2b;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --bg: #0d1117;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #fff; }
+
+        .admin-header { background: var(--dark-teal); padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); }
+        .container { padding: 20px; max-width: 500px; margin: auto; }
+
+        /* SCANNER BOX */
+        #reader { width: 100%; border-radius: 20px; overflow: hidden; border: 2px solid #333; background: #000; }
+        
+        /* VALIDATION MODAL */
+        #scan-result { 
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 80%; padding: 30px; border-radius: 25px; text-align: center; z-index: 2000;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+        .result-success { background: var(--success); color: #fff; }
+        .result-error { background: var(--danger); color: #fff; }
+
+        /* LIST DESIGN */
+        .admin-list { margin-top: 30px; }
+        .list-item { 
+            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; 
+            margin-bottom: 10px; border-left: 4px solid var(--primary);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .list-info h4 { font-size: 1rem; color: var(--primary); }
+        .list-info p { font-size: 0.8rem; opacity: 0.7; }
+        .badge-qty { background: var(--primary); color: #000; padding: 5px 10px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; }
+
+        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-scan { background: var(--primary); color: #000; }
+        
+        .payment-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #FFB800;
+        }
+
+        .payment-item.success {
+            border-left: 4px solid #2ecc71;
+        }
+
+        .payment-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-validate {
+            background: #2ecc71;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .btn-reject {
+            background: #e74c3c;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            flex: 1;
+        }
+        
+        .hidden { display: none; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; z-index: 1500; }
+    </style>
+</head>
+<body>
+
+<div id="admin-login" class="container" style="text-align: center; padding-top: 100px;">
+    <i class="fa-solid fa-user-shield fa-4x" style="color: var(--primary); margin-bottom: 20px;"></i>
+    <h2>Accès Staff Universeach</h2>
+    <input type="password" id="admin-pass" style="width: 100%; padding: 15px; margin: 20px 0; border-radius: 10px;" placeholder="Mot de passe Admin">
+    <button class="btn btn-scan" onclick="loginAdmin()">Se connecter</button>
+</div>
+
+<div id="admin-dashboard" class="hidden">
+    <header class="admin-header">
+        <div>
+            <h3 style="color: var(--primary);">Dashboard Admin</h3>
+            <small id="stat-count">0 Entrées validées</small>
+        </div>
+        <button onclick="location.reload()" style="background: none; border: none; color: #fff;"><i class="fa-solid fa-power-off"></i></button>
+    </header>
+
+    <div class="container">
+        <div id="reader"></div>
+        <button class="btn btn-scan" id="start-btn" onclick="startScanner()" style="margin-top: 20px;">
+            <i class="fa-solid fa-camera"></i> Lancer le Scan
+        </button>
+
+        <div class="admin-list">
+            <h3 style="margin: 20px 0 10px;">Paiements en attente</h3>
+            <div id="payments-table"></div>
+        </div>
+
+        <div class="admin-list">
+            <h3 style="margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">Dernières entrées</h3>
+            <div id="check-in-list">
+                <p id="empty-msg" style="text-align: center; opacity: 0.5;">Aucun scan pour le moment</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div id="scan-result">
+    <i id="res-icon" class="fa-solid fa-circle-check fa-4x"></i>
+    <h2 id="res-title" style="margin: 15px 0;">VALIDE</h2>
+    <p id="res-msg">Profitez bien de la soirée !</p>
+    <button class="btn" style="background: #fff; color: #000; margin-top: 20px;" onclick="closeResult()">Continuer</button>
+</div>
+
+<script>
+    let html5QrCode;
+    const adminPass = "admin123"; // Mot de passe à changer
+    let validatedTickets = JSON.parse(localStorage.getItem('validated_tickets') || '[]');
+
+    function loginAdmin() {
+        const pass = document.getElementById('admin-pass').value;
+        if(pass === adminPass) {
+            document.getElementById('admin-login').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            loadPayments();
+            renderList();
+        } else {
+            alert("Accès refusé.");
+        }
+    }
+
+    function startScanner() {
+        document.getElementById('start-btn').classList.add('hidden');
+        html5QrCode = new Html5Qrcode("reader");
+        
+        html5QrCode.start(
+            { facingMode: "environment" }, 
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => {
+                processScan(decodedText);
+                html5QrCode.pause(); // Pause pour afficher le résultat
+            }
+        ).catch(err => alert("Erreur Caméra : " + err));
+    }
+
+    function processScan(data) {
+        // Format attendu: UP|momo_reference|nom|status|QTY:X
+        const parts = data.split('|');
+        const overlay = document.getElementById('overlay');
+        const modal = document.getElementById('scan-result');
+        
+        if (parts[0] === "UP" && parts.length >= 5) {
+            const momoReference = parts[1];
+            const name = parts[2];
+            const status = parts[3];
+            const qtyPart = parts[4];
+            const qty = qtyPart.split(':')[1] || 1;
+            
+            // Check if ticket is already validated (scanned)
+            if (validatedTickets.includes(momoReference)) {
+                showResult(false, "ALERTE", "TICKET DÉJÀ SCANNÉ !");
+                return;
+            }
+            
+            // Check status
+            if (status === "SUCCESSFUL" || status === "SUCCESS") {
+                // SUCCESS - Valid ticket
+                const ticketInfo = {
+                    code: momoReference,
+                    name: name,
+                    qty: qty,
+                    status: status
+                };
+
+                showResult(true, "VALIDE", `${name} - ${qty} Pass`);
+                
+                // Sauvegarde
+                validatedTickets.push(momoReference);
+                saveEntry(ticketInfo);
+                
+            } else if (status === "PENDING") {
+                // PENDING - Payment not validated yet
+                showResult(false, "ALERTE", "PAIEMENT EN ATTENTE DE VALIDATION");
+            } else {
+                // FAILED or other status
+                showResult(false, "ALERTE", "PAIEMENT REFUSÉ");
+            }
+        } else {
+            // Invalid format
+            showResult(false, "ALERTE", "FORMAT QR INVALIDE");
+        }
+    }
+
+    function showResult(isSuccess, title, msg) {
+        const modal = document.getElementById('scan-result');
+        const overlay = document.getElementById('overlay');
+        
+        modal.className = isSuccess ? "result-success" : "result-error";
+        document.getElementById('res-icon').className = isSuccess ? "fa-solid fa-circle-check fa-4x" : "fa-solid fa-circle-xmark fa-4x";
+        document.getElementById('res-title').innerText = title;
+        document.getElementById('res-msg').innerText = msg;
+        
+        overlay.style.display = "block";
+        modal.style.display = "block";
+
+        // Vibreur si mobile
+        if (window.navigator.vibrate) window.navigator.vibrate(isSuccess ? 200 : [100, 50, 100]);
+    }
+
+    function closeResult() {
+        document.getElementById('overlay').style.display = "none";
+        document.getElementById('scan-result').style.display = "none";
+        html5QrCode.resume();
+    }
+
+    function saveEntry(info) {
+        let history = JSON.parse(localStorage.getItem('checkin_history') || '[]');
+        history.unshift(info); // Ajouter au début
+        localStorage.setItem('checkin_history', JSON.stringify(history));
+        localStorage.setItem('validated_tickets', JSON.stringify(validatedTickets));
+        renderList();
+    }
+
+    function renderList() {
+        const history = JSON.parse(localStorage.getItem('checkin_history') || '[]');
+        const listContainer = document.getElementById('check-in-list');
+        const statCount = document.getElementById('stat-count');
+        
+        statCount.innerText = `${history.length} Entrées validées`;
+        
+        if(history.length === 0) return;
+
+        listContainer.innerHTML = history.map(item => `
+            <div class="list-item">
+                <div class="list-info">
+                    <h4>${item.name}</h4>
+                    <p>${item.school || 'Étudiant'}</p>
+                </div>
+                <div class="badge-qty">${item.qty} Ticket(s)</div>
+            </div>
+        `).join('');
+    }
+
+    // ===== PAIEMENTS ADMIN =====
+    function loadPayments() {
+        fetch('http://localhost:3000/payments')
+        .then(res => {
+            if (!res.ok) throw new Error('Failed to fetch payments');
+            return res.json();
+        })
+        .then(data => {
+            renderPayments(data.data || []);
+        })
+        .catch(err => {
+            console.error('Error loading payments:', err);
+            document.getElementById('payments-table').innerHTML = '<p style="text-align: center; opacity: 0.5;">Erreur chargement paiements</p>';
+        });
+    }
+
+    function renderPayments(payments) {
+        const container = document.getElementById('payments-table');
+
+        if (payments.length === 0) {
+            container.innerHTML = '<p style="text-align: center; opacity: 0.5;">Aucun paiement en attente</p>';
+            return;
+        }
+
+        container.innerHTML = payments.map(p => {
+            const formattedDate = new Date(p.createdAt).toLocaleString('fr-FR');
+            const statusColor = p.status === 'PENDING' ? '#ffc107' : (p.status === 'SUCCESSFUL' ? '#2ecc71' : '#e74c3c');
+            
+            return `
+                <div class="payment-item ${p.status === 'SUCCESSFUL' ? 'success' : ''}" style="border-left: 4px solid ${statusColor};">
+                    <strong style="font-size: 1.1rem; color: var(--primary);">👤 ${p.customerName || 'Client inconnu'}</strong><br><br>
+                    
+                    <div style="text-align: left; font-size: 0.9rem; line-height: 1.8;">
+                        <p style="margin: 5px 0;"><b>📞 Numéro :</b> ${p.phoneNumber || 'N/A'}</p>
+                        <p style="margin: 5px 0;"><b>💰 Montant :</b> ${(p.amount / 100).toLocaleString('fr-FR')} XAF</p>
+                        <p style="margin: 5px 0;"><b>🎟️ Tickets :</b> ${p.quantity}</p>
+                        <p style="margin: 5px 0;"><b>🆔 Référence :</b> <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 3px;">${p.momoReference}</code></p>
+                        <p style="margin: 5px 0;"><b>📅 Date :</b> ${formattedDate}</p>
+                        <p style="margin: 5px 0;"><b>📌 Statut :</b> <span style="background: ${statusColor}; color: #fff; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${p.status}</span></p>
+                    </div>
+
+                    ${p.status === 'PENDING' ? `
+                        <div class="payment-actions" style="margin-top: 12px;">
+                            <button class="btn-validate" onclick="validatePayment('${p.id}')">
+                                ✅ Valider
+                            </button>
+                            <button class="btn-reject" onclick="rejectPayment('${p.id}')">
+                                ❌ Refuser
+                            </button>
+                        </div>
+                    ` : `<p style="text-align: center; margin-top: 10px; color: #aaa; font-size: 0.85rem;">✔️ Déjà traité</p>`}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function validatePayment(id) {
+        if (!confirm('Êtes-vous sûr de valider ce paiement ?')) return;
+
+        fetch(`http://localhost:3000/payments/${id}/validate`, {
+            method: 'PATCH',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Validation failed');
+            return res.json();
+        })
+        .then(data => {
+            alert('✅ Paiement validé !');
+            loadPayments();
+        })
+        .catch(err => {
+            console.error('Error validating payment:', err);
+            alert('❌ Erreur validation: ' + err.message);
+        });
+    }
+
+    function rejectPayment(id) {
+        if (!confirm('Êtes-vous sûr de refuser ce paiement ?')) return;
+
+        fetch(`http://localhost:3000/payments/${id}/reject`, {
+            method: 'PATCH',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Rejection failed');
+            return res.json();
+        })
+        .then(data => {
+            alert('❌ Paiement refusé');
+            loadPayments();
+        })
+        .catch(err => {
+            console.error('Error rejecting payment:', err);
+            alert('❌ Erreur refus: ' + err.message);
+        });
+    }
+</script>
+
+</body>
+</html>

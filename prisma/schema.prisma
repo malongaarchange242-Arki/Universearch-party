@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Model - Represents a user in the PassEvent system
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  school    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payments Payment[]
+  tickets  Ticket[]
+
+  @@map("users")
+}
+
+// Event Model - Represents an event created in the platform
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  price       Int      // Price in cents (e.g., 5000 = 50.00)
+  date        DateTime
+  location    String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  payments Payment[]
+  tickets  Ticket[]
+
+  @@map("events")
+}
+
+// Payment Model - Stores payment transaction details
+model Payment {
+  id              String   @id @default(uuid())
+  userId          String
+  eventId         String
+  amount          Int      // Amount in cents
+  status          String   // PENDING, SUCCESSFUL, FAILED, EXPIRED
+  momoReference   String   // Reference from MTN MoMo API
+  externalId      String?  // External transaction ID
+  customerName    String   // Customer name for the payment
+  phoneNumber     String   // Customer phone number
+  quantity        Int      // Number of tickets
+  transactionId   String   // Transaction ID provided by customer
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event  Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  ticket Ticket?
+
+  @@index([userId])
+  @@index([eventId])
+  @@map("payments")
+}
+
+// Ticket Model - Represents a ticket generated after successful payment
+model Ticket {
+  id        String   @id @default(uuid())
+  userId    String
+  eventId   String
+  paymentId String   @unique
+  qrCode    String   // Base64 encoded QR code or URL
+  status    String   // ACTIVE, USED, EXPIRED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event   Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([eventId])
+  @@map("tickets")
+}

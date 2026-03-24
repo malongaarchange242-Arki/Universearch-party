@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Journée Atiéké</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Chewy&family=Roboto:wght@400;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #0db29a 0%, #b8ed9b 45%, #ffda9a 100%);
+      font-family: 'Roboto', sans-serif;
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .event-container {
+      width: 100%;
+      max-width: 1200px;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+      background: rgba(255,255,255,0.20);
+      backdrop-filter: blur(8px);
+      background-image: url('75313d64-6bce-46d1-b017-e0903c84a7b8.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1.5rem;
+      padding: 1.5rem;
+    }
+
+    .hero {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: rgba(255,255,255,0.35);
+      padding: 1rem;
+    }
+
+    .hero .title {
+      font-family: 'Chewy', cursive;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      color: #fff;
+      text-shadow: 1px 2px 8px rgba(0,0,0,0.4);
+      margin-bottom: 0.25rem;
+    }
+
+    .hero .subtitle {
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      color: #fff;
+      text-shadow: 1px 2px 6px rgba(0,0,0,0.4);
+      margin-bottom: 1rem;
+    }
+
+    .photos {
+      display: flex;
+      gap: 20px;
+      margin-top: 0.8rem;
+    }
+
+    .slice {
+      flex: 1;
+      height: 260px;
+      border-radius: 20px;
+      background-image: url('75313d64-6bce-46d1-b017-e0903c84a7b8.png');
+      background-size: 300% 100%;
+      background-repeat: no-repeat;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      transition: transform 0.3s ease;
+    }
+
+    .slice:hover {
+      transform: scale(1.05);
+    }
+
+    .slice1 {
+      background-position: 0% 50%;
+    }
+
+    .slice2 {
+      background-position: 50% 50%;
+    }
+
+    .slice3 {
+      background-position: 100% 50%;
+    }
+
+    .right-side {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 1rem;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.72);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      text-align: center;
+    }
+
+    .right-side .badge {
+      font-family: 'Chewy', cursive;
+      font-size: 1.9rem;
+      color: #d91f1f;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      line-height: 1.1;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .qr-card {
+      margin: auto;
+      background: #fff;
+      border-radius: 30px;
+      padding: 20px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.24);
+      max-width: 340px;
+    }
+
+    .qr-card img {
+      width: 100%;
+      border-radius: 18px;
+      display: block;
+    }
+
+    .qr-title {
+      font-size: 1rem;
+      color: #1a1a1a;
+      margin-top: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    @media (max-width: 1024px) {
+      .event-container { grid-template-columns: 1fr; }
+      .photos { flex-direction: column; gap: 15px; }
+      .slice { height: 200px; }
+    }
+
+    @media (max-width: 650px) {
+      .event-container { padding: 1rem; }
+      .right-side { padding: 0.8rem; }
+      .hero .title { font-size: 2.4rem; }
+      .hero .subtitle { font-size: 1.2rem; }
+      .photos { gap: 10px; }
+      .slice { height: 160px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="event-container">
+    <div class="hero">
+      <h1 class="title">journée atiéké</h1>
+      <p class="subtitle">Chill, Food & sun</p>
+
+      <div class="photos">
+        <div class="slice slice1"></div>
+        <div class="slice slice2"></div>
+        <div class="slice slice3"></div>
+      </div>
+    </div>
+
+    <div class="right-side">
+      <div class="badge">chaque ticket numérique est unique et sera scanné</div>
+      <div class="qr-card">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=JOURNEE-ATIEKE-2026" alt="QR Code Ticket" />
+        <p class="qr-title">Scannez pour payer ou vérifier votre ticket</p>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
