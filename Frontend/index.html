@@ -240,6 +240,11 @@
                     <option value="yes">Oui</option>
                     <option value="no">Non</option>
                 </select>
+                <div style="text-align: center; margin: 15px 0;">
+                    <a href="Privacy.html" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <i class="fa-solid fa-question-circle"></i> Pourquoi on vous demande ces informations ?
+                    </a>
+                </div>
                 <input type="text" id="school" class="form-control hidden" placeholder="Nom de l'école">
                 <button class="btn btn-reserve" onclick="finishRegistration()">Continuer</button>
             </div>
@@ -258,7 +263,6 @@
                     <h4 id="payment-info-title" style="color: var(--primary); margin-bottom: 15px;"><i class="fa-solid fa-mobile-screen-button" style="margin-right: 8px;"></i>Informations de Paiement</h4>
                     <div style="background: rgba(255,255,255,0.9); color: #000; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
                         <p style="font-size: 1.1rem; font-weight: 700; margin-bottom: 5px;">Numéro: <strong id="payment-number" style="color: #e20074;">06 96 11 04 7</strong></p>
-                        <p style="font-size: 1rem; font-weight: 600; margin-bottom: 5px;">Nom du compte: <strong id="payment-name">UniverSearch</strong></p>
                         <p style="font-size: 1rem; font-weight: 600;">Montant: <strong id="amount-display">2.500 XAF</strong></p>
                     </div>
                     <p id="payment-instruction" style="font-size: 0.85rem; color: #fff; margin-top: 10px;">Effectuez le paiement manuellement sur votre application MTN MoMo</p>
@@ -358,7 +362,7 @@
             airtelBtn.style.opacity = '1';
             infoBorder.style.borderColor = '#ff3b3b';
             title.innerText = 'Informations de Paiement - Airtel Money';
-            numberEl.innerText = '04 56 78 90 1';
+            numberEl.innerText = '+242055137664';
             instruction.innerText = 'Effectuez le paiement manuellement sur votre application Airtel Money';
             logoImg.src = './airtel-congo-b-0405ea68.jpg';
             payBtn.style.background = '#ff3b3b';

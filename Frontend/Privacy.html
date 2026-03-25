@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Politique de Confidentialité - Universeach Party</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #FFB800;
+            --dark-teal: #062c2b;
+            --darker: #041d1c;
+            --text-light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        html { height: auto; overflow-y: auto; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0d1117; color: var(--text-light); display: block; }
+
+        .app-container { width: 100%; max-width: 480px; background: var(--dark-teal); min-height: 100vh; position: relative; overflow-x: hidden; margin: 0 auto; }
+
+        /* --- HEADER & MENU --- */
+        .header-bar { position: sticky; top: 0; background: rgba(6, 44, 43, 0.95); backdrop-filter: blur(10px); height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; }
+        .logo-img { width: 35px; height: 35px; border-radius: 50%; border: 1.5px solid var(--primary); }
+        
+        .hamburger { font-size: 1.5rem; cursor: pointer; color: var(--primary); }
+        
+        /* Menu Overlay */
+        .menu-overlay { position: fixed; top: 70px; right: -100%; width: 200px; background: var(--darker); border-radius: 0 0 0 20px; padding: 20px; transition: 0.3s; z-index: 999; box-shadow: -10px 10px 30px rgba(0,0,0,0.5); }
+        .menu-overlay.active { right: 0; }
+        .menu-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+
+        /* --- CONTENT --- */
+        .content { padding: 30px 20px; }
+        .content h1 { color: var(--primary); font-size: 2rem; margin-bottom: 20px; text-align: center; }
+        .content > p:first-of-type { text-align: center; font-size: 1rem; color: #bbb; margin-bottom: 30px; }
+
+        .content h2 { color: var(--primary); font-size: 1.3rem; margin-top: 30px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .content h2 i { font-size: 1.5rem; }
+
+        .content h3 { color: #FFD699; font-size: 1rem; margin-top: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .content h3 i { font-size: 1.1rem; }
+
+        .content p { font-size: 0.95rem; line-height: 1.8; margin-bottom: 15px; color: #ddd; }
+        .content ul { list-style: none; margin-left: 0; padding-left: 0; margin-bottom: 20px; margin-left: 20px; }
+        .content li { font-size: 0.95rem; line-height: 1.8; margin-bottom: 10px; padding-left: 25px; position: relative; }
+        .content li i { position: absolute; left: 0; color: var(--primary); font-size: 1rem; }
+
+        .section { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin: 20px 0; border-left: 4px solid var(--primary); }
+
+        .back-btn { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { color: #FFD699; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <nav class="header-bar">
+        <div class="logo-area">
+            <img src="WhatsApp Image 2026-03-22 at 20.57.56 (1).jpeg" class="logo-img" alt="U">
+            <span>Universeach Party</span>
+        </div>
+        <div class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars-staggered"></i></div>
+    </nav>
+
+    <div class="menu-overlay" id="side-menu">
+        <div class="menu-item" onclick="window.location.href='Index.html'">
+            <i class="fa-solid fa-home"></i> Accueil
+        </div>
+        <div class="menu-item" onclick="window.location.href='History.html'"><i class="fa-solid fa-history"></i> Historique</div>
+        <div class="menu-item" onclick="window.location.href='Help.html'"><i class="fa-solid fa-circle-info"></i> Aide</div>
+        <div class="menu-item" onclick="window.location.href='About.html'"><i class="fa-solid fa-circle-question"></i> À propos</div>
+    </div>
+
+    <div class="content">
+        <a href="index.html" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i> Retour
+        </a>
+
+        <h1><i class="fa-solid fa-shield" style="margin-right: 10px;"></i>Politique de Confidentialité</h1>
+        <p>Nous respectons votre vie privée et protégeons vos données personnelles.</p>
+
+        <!-- Données Collectées Section -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-database"></i> Quelles données collectons-nous ?
+            </h2>
+
+            <h3><i class="fa-solid fa-user-circle"></i> Informations personnelles</h3>
+            <p>Lors de votre inscription, nous collectons :</p>
+            <ul>
+                <li><i class="fa-solid fa-check"></i> <strong>Nom et Prénom</strong> - Pour identifier votre pass</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Email</strong> - Pour vous contacter et confirmations</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Numéro de téléphone</strong> - Pour communications urgentes</li>
+                <li><i class="fa-solid fa-check"></i> <strong>École/Université</strong> - Pour statistiques démographiques</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Informations de paiement</strong> - Numéro pour MTN MoMo ou Airtel Money (stocké de manière sécurisée)</li>
+            </ul>
+
+            <h3><i class="fa-solid fa-mouse"></i> Données techniques</h3>
+            <p>Nous collectons automatiquement :</p>
+            <ul>
+                <li><i class="fa-solid fa-check"></i> Adresse IP</li>
+                <li><i class="fa-solid fa-check"></i> Type de navigateur</li>
+                <li><i class="fa-solid fa-check"></i> Logs d'accès</li>
+                <li><i class="fa-solid fa-check"></i> Cookies de session</li>
+            </ul>
+        </div>
+
+        <!-- Utilisation des Données Section -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-lightbulb"></i> Comment utilisons-nous vos données ?
+            </h2>
+
+            <ul>
+                <li><i class="fa-solid fa-check"></i> <strong>Créer votre ticket</strong> - Génération du QR code et du pass événementiel</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Traiter les paiements</strong> - Validation et suivi de vos transactions MTN/Airtel</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Communications</strong> - Envoi de confirmations, rappels et informations importantes</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Sécurité</strong> - Prévention des fraudes et usage abusif</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Améliorations</strong> - Analyse de l'utilisation pour améliorer nos services</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Statistiques anonymes</strong> - Rapports d'événements (sans identification personnelle)</li>
+            </ul>
+        </div>
+
+        <!-- Protection des Données Section -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-lock"></i> Comment protégeons-nous vos données ?
+            </h2>
+
+            <ul>
+                <li><i class="fa-solid fa-check"></i> <strong>Chiffrement</strong> - Vos données sensibles sont chiffrées en transit (HTTPS/SSL)</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Stockage sécurisé</strong> - Les informations de paiement sont stockées de manière sécurisée</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Accès limité</strong> - Seul le personnel autorisé peut accéder aux données</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Audit de sécurité</strong> - Vérifications régulières de la sécurité des données</li>
+            </ul>
+        </div>
+
+        <!-- Durée de Rétention -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-calendar"></i> Combien de temps conservons-nous vos données ?
+            </h2>
+
+            <ul>
+                <li><i class="fa-solid fa-check"></i> <strong>Pendant l'événement</strong> - Données conservées pour accès et entrée</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Après l'événement</strong> - 1 an pour archivage et conformité légale</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Suppression</strong> - Vous pouvez demander la suppression de vos données à tout moment</li>
+            </ul>
+        </div>
+
+        <!-- Vos Droits -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-hand-fist"></i> Vos droits
+            </h2>
+
+            <p>Vous avez le droit de :</p>
+            <ul>
+                <li><i class="fa-solid fa-check"></i> <strong>Accéder</strong> - Demander accès à vos données personnelles</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Corriger</strong> - Modifier vos informations inexactes</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Supprimer</strong> - Demander la suppression de vos données (droit à l'oubli)</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Transférer</strong> - Recevoir vos données dans un format lisible</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Vous opposer</strong> - Refuser certains usages de vos données</li>
+            </ul>
+
+            <p style="margin-top: 20px;">Pour exercer ces droits, contactez : <strong style="color: var(--primary);">support@universearch.com</strong></p>
+        </div>
+
+        <!-- Contact -->
+        <div class="section">
+            <h2>
+                <i class="fa-solid fa-envelope"></i> Questions ?
+            </h2>
+
+            <p>Si vous avez des questions concernant cette politique de confidentialité ou nos pratiques de données, veuillez nous contacter :</p>
+            <ul>
+                <li><i class="fa-solid fa-envelope"></i> Email : <strong>support@universearch.com</strong></li>
+                <li><i class="fa-solid fa-phone"></i> WhatsApp : Disponible prochainement</li>
+            </ul>
+        </div>
+
+        <p style="text-align: center; margin-top: 40px; color: #888; font-size: 0.9rem;">
+            Dernière mise à jour : 25 Mars 2026<br>
+            Cette politique peut être modifiée à tout moment.
+        </p>
+    </div>
+</div>
+
+<script>
+    function toggleMenu() {
+        document.getElementById('side-menu').classList.toggle('active');
+    }
+</script>
+
+</body>
+</html>
